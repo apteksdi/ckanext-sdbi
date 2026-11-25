@@ -315,7 +315,13 @@
 
 /* Dataset Terbaru + Populer */
 .sdbi-home .sdbi-home-datasets { padding: 32px 0 24px; }
-.sdbi-home .sdbi-home-datasets-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: start; }
+.sdbi-home .sdbi-home-datasets-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; align-items: stretch; }
+/* equal-height panels: the list fills the panel and rows share the extra space */
+.sdbi-home .sdbi-home-ds-panel { display: flex; flex-direction: column; }
+.sdbi-home .sdbi-home-ds-panel > .sdbi-home-ds-list,
+.sdbi-home .sdbi-home-ds-panel > .sdbi-home-empty { flex: 1; }
+.sdbi-home .sdbi-home-ds-list { display: flex; flex-direction: column; }
+.sdbi-home .sdbi-home-ds-item { flex: 1 1 auto; align-items: center; }
 .sdbi-home .sdbi-home-datasets-grid > * { min-width: 0; }
 .sdbi-home .sdbi-home-ds-list {
   list-style: none; margin: 0; padding: 4px 0; background: #fff;
@@ -359,7 +365,7 @@
 .sdbi-home .sdbi-home-ds-when .fa { color: #1b6fc2; }
 .sdbi-home .sdbi-home-ds-rank {
   display: flex; align-items: center; justify-content: center;
-  width: 30px; height: 30px; margin-top: 9px; padding: 0; border-radius: 50%;
+  flex: 0 0 auto; width: 30px; height: 30px; padding: 0; border-radius: 50%;
   background: #fff3e8; color: #d4680f; font-size: 14px; font-weight: 800;
 }
 .sdbi-home .sdbi-home-ds-top { background: linear-gradient(90deg, #fff8f1 0%, #fff 70%); }
