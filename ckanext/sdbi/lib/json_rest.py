@@ -255,18 +255,53 @@ def _stable_id(source_portal, remote_name):
     return str(uuid.uuid5(uuid.NAMESPACE_URL, seed))
 
 
+def _cell_value(value):
+    """Coerce nested JSON values to DataStore-friendly scalars."""
+    if value is None or isinstance(value, (str, bool, int, float)):
+        return value
+    return json.dumps(value, ensure_ascii=False)
+
+
+def tabular_records_from_payload(payload):
+    """
+    Extract a flat table from a JSON REST payload for DataStore.
+
+    Supports Jakarta-style ``{"data": [ {...}, ... ]}`` and a bare list of
+    objects. Returns [] when the payload is not tabular (so harvest still
+    succeeds as a JSON link only).
+    """
+    if not payload:
+        return []
+    rows = None
+    if isinstance(payload, list):
+        rows = payload
+    elif isinstance(payload, dict):
+        data = payload.get('data')
+        if isinstance(data, list):
+            rows = data
+    if not rows:
+        return []
+    records = []
+    for item in rows:
+        if not isinstance(item, dict) or not item:
+            continue
+        records.append({
+            str(key): _cell_value(value) for key, value in item.items()
+        })
+    return records
+
+
 def _record_count(payload):
     if not payload:
         return 0
-    if isinstance(payload, dict):
-        data = payload.get('data')
-        if isinstance(data, list):
-            return len(data)
-        if payload.get('total_file') is not None:
-            try:
-                return int(payload['total_file'])
-            except (TypeError, ValueError):
-                return 0
+    tabular = tabular_records_from_payload(payload)
+    if tabular:
+        return len(tabular)
+    if isinstance(payload, dict) and payload.get('total_file') is not None:
+        try:
+            return int(payload['total_file'])
+        except (TypeError, ValueError):
+            return 0
     if isinstance(payload, list):
         return len(payload)
     return 0

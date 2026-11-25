@@ -11,7 +11,7 @@
 {% block styles %}
 {{ super() }}
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" />
-<link rel="stylesheet" href="/css/sebaran_bpbd.css?v=25" />
+<link rel="stylesheet" href="/css/sebaran_bpbd.css?v=28" />
 {% endblock %}
 
 {% block footer %}{% endblock %}
@@ -19,12 +19,16 @@
 {% block content %}
 <div class="sebaran-bpbd">
   <div class="sebaran-bpbd__bar">
-    <a class="sebaran-bpbd__back" href="{{ h.url_for('home.index') }}">Portal Data</a>
+    <a class="sebaran-bpbd__logo" href="{{ h.url_for('home.index') }}" title="{{ g.site_title }}">
+      <img src="{{ h.url_for_static_or_external(g.site_logo or '/base/images/Logo-BNPB_bulat.png') }}"
+        alt="{{ g.site_title }}" />
+    </a>
     <div class="sebaran-bpbd__brand">
       <h1>Peta Sebaran BPBD</h1>
       <p class="sebaran-bpbd__count"><strong>{{ bpbd_count }}</strong> lokasi terpetakan</p>
     </div>
     <div class="sebaran-bpbd__actions">
+      <a class="sebaran-bpbd__back" href="{{ h.url_for('home.index') }}">Kembali ke beranda</a>
       <a class="sebaran-bpbd__download" href="/sebaran-bpbd/data.csv" download="sebaran-bpbd.csv">Unduh data</a>
       {% if c.userobj and c.userobj.sysadmin %}
       <button type="button" class="sebaran-bpbd__upload-open" aria-haspopup="dialog" aria-controls="sebaran-bpbd-import">
@@ -92,6 +96,7 @@
   </p>
 </div>
 <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
-<script src="/js/sebaran_bpbd_utils.js?v=25"></script>
-<script src="/js/sebaran_bpbd.js?v=25"></script>
+<script src="https://unpkg.com/supercluster@8.0.1/dist/supercluster.min.js"></script>
+<script src="/js/sebaran_bpbd_utils.js?v=27"></script>
+<script src="/js/sebaran_bpbd.js?v=27"></script>
 {% endblock %}

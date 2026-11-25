@@ -1,0 +1,51 @@
+{% from 'home/beranda/_macros.html' import dot_number %}
+{% set total_dataset = h.sdbi_theme_dataset_count() or 0 %}
+{% set instansi = (stats.get('kementerian_lembaga_terhubung') or 0) + (stats.get('ngo_terhubung') or 0) %}
+<section class="sdbi-home-hero">
+  <img class="sdbi-home-hero-map" src="{{ h.url_for_static('/img/peta-indonesia-hero.svg') }}" alt="" aria-hidden="true">
+  <div class="sdbi-home-container">
+    <div class="sdbi-home-hero-content">
+      <h1 class="sdbi-home-hero-title">Satu Data untuk Indonesia Tangguh Bencana</h1>
+      <p class="sdbi-home-hero-sub">Akses data, informasi, dan statistik kebencanaan Indonesia secara terintegrasi untuk mendukung pengambilan keputusan dan meningkatkan kesiapsiagaan.</p>
+      <form class="sdbi-home-hero-search" action="{{ h.url_for('dataset.search') }}" method="get" role="search"
+        data-autocomplete="{{ h.url_for('/api/2/util/dataset/autocomplete') }}" data-dataset-url="{{ h.url_for('dataset.read', id='__name__') }}">
+        <input type="text" name="q" class="sdbi-home-hero-input" placeholder="Cari dataset, dashboard, atau informasi bencana…"
+          aria-label="Cari dataset" autocomplete="off" role="combobox" aria-autocomplete="list"
+          aria-expanded="false" aria-controls="sdbi-home-suggest">
+        <ul id="sdbi-home-suggest" class="sdbi-home-suggest" role="listbox" aria-label="Saran dataset" hidden></ul>
+        <button type="submit" class="sdbi-home-btn sdbi-home-btn-orange" aria-label="Cari"><span class="sdbi-home-hero-search-text">Cari</span><i class="fa fa-search sdbi-home-hero-search-icon" aria-hidden="true"></i></button>
+      </form>
+      {% if extras.tags %}
+      <div class="sdbi-home-hero-tags">
+        <span class="sdbi-home-hero-tags-label">Sering dicari:</span>
+        {% for tag in extras.tags %}
+        <a class="sdbi-home-chip" href="{{ h.url_for('dataset.search', tags=tag.name) }}">{{ tag.name }}</a>
+        {% endfor %}
+      </div>
+      {% endif %}
+      <div class="sdbi-home-hero-actions">
+        <a href="#peta" class="sdbi-home-btn sdbi-home-btn-outline"><i class="fa fa-map" aria-hidden="true"></i> Lihat Peta Bencana</a>
+        <a href="{{ h.url_for('dataset.search') }}" class="sdbi-home-btn sdbi-home-btn-outline"><i class="fa fa-chart-bar" aria-hidden="true"></i> Jelajahi Dataset</a>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="sdbi-home-stats" aria-label="Statistik">
+  <div class="sdbi-home-container">
+    <div class="sdbi-home-stats-card">
+      {% for icon, value, label in [
+        ('fa-database', total_dataset, 'Total Dataset'),
+        ('fa-map-marker-alt', stats.get('provinsi_terhubung') or 0, 'Provinsi Terhubung'),
+        ('fa-city', stats.get('kabupaten_kota_terhubung') or 0, 'Kabupaten/Kota'),
+        ('fa-users', instansi, 'Instansi Terintegrasi')] %}
+      <div class="sdbi-home-stat">
+        <span class="sdbi-home-stat-icon"><i class="fa {{ icon }}" aria-hidden="true"></i></span>
+        <div>
+          <div class="sdbi-home-stat-value" data-count="{{ value|int }}">{{ dot_number(value) }}</div>
+          <div class="sdbi-home-stat-label">{{ label }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>

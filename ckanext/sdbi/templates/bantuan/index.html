@@ -4,8 +4,42 @@
 
 {% block styles %}
 {{ super() }}
-<link rel="stylesheet" href="/css/bantuan.css?v=39" />
+<link rel="stylesheet" href="/css/bantuan.css?v=41" />
 {% endblock %}
+
+{% macro render_faq_category(category) -%}
+<details class="bantuan__category" data-category="{{ category.id }}" data-title="{{ category.title|e }}">
+  <summary class="bantuan__category-summary">
+    <span class="bantuan__category-title">{{ category.title }}</span>
+  </summary>
+  <div class="bantuan__category-body">
+    {% for item in category.entries %}
+    <details class="bantuan__item" data-q="{{ item.q|e }}" data-a="{{ item.a|e }}" data-file-label="{{ (item.file_label or '')|e }}" data-category="{{ category.id }}">
+      <summary class="bantuan__q"><span class="bantuan__q-text">{{ item.q }}</span></summary>
+      <div class="bantuan__answer">
+        <div class="bantuan__answer-text">{{ item.a }}</div>
+        {% if item.file_url %}
+        <a
+          class="bantuan__file"
+          href="{{ item.file_url }}"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <svg class="bantuan__file-icon" width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+            <path fill="currentColor" d="M9.5 1H3.75A1.75 1.75 0 0 0 2 2.75v10.5C2 14.216 2.784 15 3.75 15h8.5A1.75 1.75 0 0 0 14 13.25V5.5L9.5 1zm-.25 1.5L12.5 5.75H9.25V2.5zM4 7h8v1.25H4V7zm0 2.5h8V10.75H4V9.5zm0 2.5h5V13H4v-1z"/>
+          </svg>
+          <span>{{ item.file_label or 'Referensi File' }}</span>
+        </a>
+        {% endif %}
+      </div>
+    </details>
+    {% endfor %}
+    {% for child in category.children %}
+    {{ render_faq_category(child) }}
+    {% endfor %}
+  </div>
+</details>
+{%- endmacro %}
 
 {% block content %}
 <div id="content" class="bantuan-main">
@@ -16,7 +50,7 @@
     <section class="bantuan__welcome" aria-hidden="true">
       <img
         class="bantuan__welcome-logo"
-        src="/img/bnpb-logo-2.png?v=39"
+        src="/img/bnpb-logo-2.png?v=40"
         alt=""
         width="480"
         height="320"
@@ -29,19 +63,7 @@
     <div class="bantuan__panel">
       <div id="bantuan-list">
         {% for category in faq_categories %}
-        <details class="bantuan__category" data-category="{{ category.id }}" data-title="{{ category.title|e }}">
-          <summary class="bantuan__category-summary">
-            <span class="bantuan__category-title">{{ category.title }}</span>
-          </summary>
-          <div class="bantuan__category-body">
-            {% for item in category.entries %}
-            <details class="bantuan__item" data-q="{{ item.q|e }}" data-a="{{ item.a|e }}" data-category="{{ category.id }}">
-              <summary class="bantuan__q"><span class="bantuan__q-text">{{ item.q }}</span></summary>
-              <div class="bantuan__answer">{{ item.a }}</div>
-            </details>
-            {% endfor %}
-          </div>
-        </details>
+        {{ render_faq_category(category) }}
         {% endfor %}
       </div>
     </div>

@@ -90,8 +90,12 @@
           <div class="form-description">
             <p>${form.description || 'Sebelum Anda melanjutkan, mohon berikan feedback singkat untuk membantu kami meningkatkan layanan.'}</p>
           </div>
-          <div class="smart-exit-intent-iframe-container">
-            <iframe src="${form.form_url}" frameborder="0" allowfullscreen></iframe>
+          <!-- Google Forms sets CSP frame-ancestors 'none' — cannot embed in iframe.
+               Open in a new tab instead (forms.gle / docs.google.com). -->
+          <div class="smart-exit-intent-cta">
+            <a href="${form.form_url}" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-lg smart-exit-intent-open">
+              <i class="fa fa-external-link"></i> Isi Survey
+            </a>
           </div>
         </div>
         <div class="smart-exit-intent-footer">
@@ -99,9 +103,6 @@
             <button class="btn btn-secondary" onclick="closeSmartExitIntentModal()">
               <i class="fa fa-times"></i> Tutup
             </button>
-            <a href="${form.form_url}" target="_blank" class="btn btn-primary">
-              <i class="fa fa-external-link"></i> Buka di Tab Baru
-            </a>
           </div>
           <div class="footer-note">
             <small><i class="fa fa-info-circle"></i> Form ini hanya membutuhkan waktu 1-2 menit</small>
@@ -205,14 +206,15 @@
           color: #444;
         }
 
-        .smart-exit-intent-iframe-container {
-          width: 100%;
-          height: 400px;
+        .smart-exit-intent-cta {
+          display: flex;
+          justify-content: center;
+          padding: 24px 0 8px;
         }
 
-        .smart-exit-intent-iframe-container iframe {
-          width: 100%;
-          height: 100%;
+        .smart-exit-intent-open {
+          font-size: 16px;
+          padding: 12px 28px;
         }
 
         .smart-exit-intent-footer {

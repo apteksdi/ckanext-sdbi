@@ -1,0 +1,119 @@
+{% from 'home/beranda/_macros.html' import dot_number %}
+{% set example = extras.example or {} %}
+{% set ex_results = example.results or [] %}
+{% set ex_first = ex_results[0] if ex_results else none %}
+{% set api_example = h.url_for('/api/3/action/package_search', qualified=true) ~ '?q=' ~ (example.query or 'banjir') %}
+{#- Interactive tour. Without JS all three panels show stacked; beranda.js turns
+    it into tabs (role=tablist) that advance on their own until the visitor
+    picks a step. -#}
+<section id="panduan" class="sdbi-home-panduan" data-reveal aria-labelledby="sdbi-home-panduan-title">
+  <div class="sdbi-home-container">
+    <div class="sdbi-home-tour" data-tour>
+      <div class="sdbi-home-tour-nav">
+        <h2 id="sdbi-home-panduan-title" class="sdbi-home-tour-title">Cara memakai portal ini</h2>
+        <p class="sdbi-home-tour-lead">Tiga langkah dari mencari sampai memakai data kebencanaan.</p>
+        <div class="sdbi-home-tour-tabs" role="tablist" aria-label="Langkah memakai portal">
+          {% for title, text, icon in [
+            ('Cari dataset', 'Ketik kata kunci atau pilih kategori, lalu saring hasilnya.', 'fa-magnifying-glass'),
+            ('Lihat pratinjau', 'Baca deskripsi, sumber, dan isi data sebelum mengunduh.', 'fa-eye'),
+            ('Unduh atau pakai API', 'Ambil berkas dalam format yang Anda perlukan, atau lewat API.', 'fa-download')] %}
+          <button type="button" class="sdbi-home-tour-tab{% if loop.first %} is-active{% endif %}" role="tab"
+            id="sdbi-home-tour-tab-{{ loop.index }}" aria-controls="sdbi-home-tour-panel-{{ loop.index }}"
+            aria-selected="{{ 'true' if loop.first else 'false' }}" tabindex="{{ '0' if loop.first else '-1' }}">
+            <span class="sdbi-home-tour-num" aria-hidden="true">{{ loop.index }}</span>
+            <span class="sdbi-home-tour-tab-text">
+              <span class="sdbi-home-tour-tab-title"><i class="fa {{ icon }}" aria-hidden="true"></i> {{ title }}</span>
+              <span class="sdbi-home-tour-tab-desc">{{ text }}</span>
+            </span>
+            <span class="sdbi-home-tour-progress" aria-hidden="true"><span></span></span>
+          </button>
+          {% endfor %}
+        </div>
+        <a class="sdbi-home-btn sdbi-home-btn-orange sdbi-home-tour-cta" href="{{ h.url_for('dataset.search') }}">Mulai mencari dataset</a>
+      </div>
+
+      <div class="sdbi-home-tour-stage">
+        {# 1 - search #}
+        <div class="sdbi-home-tour-panel" role="tabpanel" id="sdbi-home-tour-panel-1" aria-labelledby="sdbi-home-tour-tab-1">
+          <div class="sdbi-home-mock-window">
+            <div class="sdbi-home-mock-bar" aria-hidden="true"><span></span><span></span><span></span></div>
+            <div class="sdbi-home-mock-search">
+              <i class="fa fa-magnifying-glass" aria-hidden="true"></i>
+              <span class="sdbi-home-mock-typed" data-type-text="{{ example.query or 'banjir' }}">{{ example.query or 'banjir' }}</span><span class="sdbi-home-mock-caret" aria-hidden="true"></span>
+            </div>
+            {% if ex_results %}
+            <p class="sdbi-home-mock-count">{{ dot_number(example.count) }} dataset ditemukan untuk "{{ example.query }}"</p>
+            <ul class="sdbi-home-mock-results">
+              {% for item in ex_results %}
+              <li style="--sdbi-home-i: {{ loop.index0 }};">
+                <a href="{{ h.url_for('dataset.read', id=item.name) }}">
+                  <span class="sdbi-home-mock-result-title">{{ item.title }}</span>
+                  <span class="sdbi-home-mock-result-meta">{{ item.org }}{% for f in item.formats[:3] %} <span class="sdbi-home-mini-fmt">{{ f }}</span>{% endfor %}</span>
+                </a>
+              </li>
+              {% endfor %}
+            </ul>
+            {% endif %}
+            <a class="sdbi-home-mock-more" href="{{ h.url_for('dataset.search', q=example.query or 'banjir') }}">Lihat semua hasil "{{ example.query or 'banjir' }}" <i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+          </div>
+        </div>
+
+        {# 2 - preview #}
+        <div class="sdbi-home-tour-panel" role="tabpanel" id="sdbi-home-tour-panel-2" aria-labelledby="sdbi-home-tour-tab-2">
+          <div class="sdbi-home-mock-window">
+            <div class="sdbi-home-mock-bar" aria-hidden="true"><span></span><span></span><span></span></div>
+            {% if ex_first %}
+            <div class="sdbi-home-mock-dataset">
+              <span class="sdbi-home-mock-org"><i class="fa fa-building-columns" aria-hidden="true"></i> {{ ex_first.org }}</span>
+              <h3 class="sdbi-home-mock-dataset-title">{{ ex_first.title }}</h3>
+              {% if ex_first.notes %}<p class="sdbi-home-mock-notes">{{ ex_first.notes }}</p>{% endif %}
+              {% if ex_first.tags %}
+              <div class="sdbi-home-mock-tags">{% for t in ex_first.tags %}<span>{{ t }}</span>{% endfor %}</div>
+              {% endif %}
+              {% if ex_first.resources %}
+              <p class="sdbi-home-mock-label">Isi dataset</p>
+              <ul class="sdbi-home-mock-resources">
+                {% for r in ex_first.resources %}
+                <li><span class="sdbi-home-ds-format sdbi-home-fmt-{{ (r.format or 'data') | lower }}" aria-hidden="true">{{ (r.format or 'DATA')[:4] }}</span> {{ r.name }}</li>
+                {% endfor %}
+              </ul>
+              {% endif %}
+              <a class="sdbi-home-mock-more" href="{{ h.url_for('dataset.read', id=ex_first.name) }}">Buka dataset ini <i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+            </div>
+            {% else %}
+            <p class="sdbi-home-mock-notes">Setiap dataset punya halaman berisi deskripsi, sumber, tag, dan daftar berkas yang bisa dipratinjau.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        {# 3 - download / API #}
+        <div class="sdbi-home-tour-panel" role="tabpanel" id="sdbi-home-tour-panel-3" aria-labelledby="sdbi-home-tour-tab-3">
+          <div class="sdbi-home-tour-split">
+            {% if extras.formats %}
+            <div class="sdbi-home-formats">
+              <h3 class="sdbi-home-side-title">Format yang tersedia</h3>
+              <ul class="sdbi-home-format-list">
+                {% for fmt in extras.formats %}
+                <li>
+                  <a href="{{ h.url_for('dataset.search', res_format=fmt.name) }}">
+                    <span class="sdbi-home-ds-format sdbi-home-fmt-{{ fmt.name | lower | replace(' ', '') }}" aria-hidden="true">{{ fmt.name[:4] | upper }}</span>
+                    <span class="sdbi-home-format-name">{{ fmt.name }}</span>
+                    <span class="sdbi-home-format-count">{{ dot_number(fmt.count) }} dataset</span>
+                  </a>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+            {% endif %}
+            <div class="sdbi-home-dev">
+              <h3 class="sdbi-home-side-title"><i class="fa fa-code" aria-hidden="true"></i> Untuk pengembang</h3>
+              <p>Semua dataset publik bisa diambil lewat CKAN API:</p>
+              <code class="sdbi-home-code">GET {{ api_example }}</code>
+              <a class="sdbi-home-dev-link" href="https://docs.ckan.org/en/2.10/api/" target="_blank" rel="noopener">Baca dokumentasi API <i class="fa fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

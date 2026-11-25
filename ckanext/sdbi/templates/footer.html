@@ -1,13 +1,13 @@
-<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
-  integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+{# Local Font Awesome from CKAN vendor (no external CDN / 403) #}
+<link rel="stylesheet" href="/base/vendor/fontawesome-free/css/all.css">
 <footer class="site-footer">
   <div class="container">
     <div class="row">
 
       <div class="col-xs-6 col-md-3">
         <div class="footer-logo">
-          <a href="https://bnpb.go.id/"><img src="https://bnpb.go.id/base/images/logo-footer.png" class="img-fluid"
-              alt="logo"></a>
+          <a href="https://bnpb.go.id/"><img src="{{ h.url_for_static('/img/logo-footer.png') }}?v=1" class="img-fluid"
+              alt="BNPB"></a>
         </div>
       </div>
 
@@ -47,26 +47,27 @@
             <button><i class="fab fa-telegram-plane"></i></button>
           </form>
         </div>
-      </div>
-      <div class="col-xs-6 col-md-3" style="margin-top: 20px;">
-        <h6>STATISTIK PENGUNJUNG</h6>
-        <div class="visitor-stats" style="font-size: 12px; color: #666;">
-          {% set visitor_stats = h.get_total_visitors() %}
-          <div style="margin-bottom: 8px;">
-            <i class="fas fa-circle" style="color: #28a745; font-size: 8px;"></i>
-            <span style="margin-left: 5px;">Online: {{ visitor_stats.online_visitors }}</span>
-          </div>
-          <div style="margin-bottom: 8px;">
-            <i class="fas fa-sun" style="color: #007bff;"></i>
-            <span style="margin-left: 5px;">Hari Ini: {{ visitor_stats.today_visitors }}</span>
-          </div>
-          <div style="margin-bottom: 8px;">
-            <i class="fas fa-calendar-minus" style="color: #ffc107;"></i>
-            <span style="margin-left: 5px;">Kemarin: {{ visitor_stats.yesterday_visitors }}</span>
-          </div>
-          <div style="margin-bottom: 8px;">
-            <i class="fas fa-users" style="color: #dc3545;"></i>
-            <span style="margin-left: 5px;">Total: {{ visitor_stats.unique_visitors }}</span>
+        {# Nested under BERLANGGANAN — a 5th col-md-3 wraps to the left under the logo #}
+        <div class="footer-visitor-stats" style="margin-top: 20px;">
+          <h6>STATISTIK PENGUNJUNG</h6>
+          <div class="visitor-stats" style="font-size: 12px; color: #666;">
+            {% set visitor_stats = h.get_total_visitors() %}
+            <div style="margin-bottom: 8px;">
+              <i class="fas fa-circle" style="color: #28a745; font-size: 8px;"></i>
+              <span style="margin-left: 5px;">Online: {{ visitor_stats.online_visitors }}</span>
+            </div>
+            <div style="margin-bottom: 8px;">
+              <i class="fas fa-sun" style="color: #007bff;"></i>
+              <span style="margin-left: 5px;">Hari Ini: {{ visitor_stats.today_visitors }}</span>
+            </div>
+            <div style="margin-bottom: 8px;">
+              <i class="fas fa-calendar-minus" style="color: #ffc107;"></i>
+              <span style="margin-left: 5px;">Kemarin: {{ visitor_stats.yesterday_visitors }}</span>
+            </div>
+            <div style="margin-bottom: 8px;">
+              <i class="fas fa-users" style="color: #dc3545;"></i>
+              <span style="margin-left: 5px;">Total: {{ visitor_stats.unique_visitors }}</span>
+            </div>
           </div>
         </div>
       </div>
@@ -98,120 +99,4 @@
   </div>
 </footer>
 
-<!-- Survey Popup Modal -->
-<div id="surveyModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="surveyModalLabel"
-  aria-hidden="true">
-  <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-      <div class="modal-header"
-        style="background: linear-gradient(135deg, #ff5e14, #ff8c42); color: white; border-bottom: none;">
-        <h5 class="modal-title" id="surveyModalLabel">
-          <i class="fa fa-clipboard"></i> Survey Kepuasan Pengguna
-        </h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white;">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="survey-intro" style="margin-bottom: 20px;">
-          <div class="alert alert-info" style="border-left: 4px solid #ff5e14;">
-            <h6><i class="fa fa-info-circle"></i> Mengapa Survey Ini Penting?</h6>
-            <p style="margin-bottom: 0; font-size: 14px;">
-              Feedback Anda sangat berharga untuk meningkatkan kualitas layanan portal data bencana BNPB.
-              Survey ini hanya membutuhkan waktu 2-3 menit untuk diselesaikan.
-            </p>
-          </div>
-        </div>
-        <div id="surveyContent">
-          <div class="text-center" style="padding: 40px 20px;">
-            <i class="fa fa-spinner fa-spin fa-3x" style="color: #ff5e14;"></i>
-            <p style="margin-top: 15px; color: #666;">Memuat survey...</p>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer" style="background: #f8f9fa; border-top: 1px solid #dee2e6;">
-        <div class="row w-100 align-items-center">
-          <div class="col-md-6">
-            <small class="text-muted">
-              <i class="fa fa-clock"></i> Estimasi waktu: 2-3 menit
-            </small>
-          </div>
-          <div class="col-md-6 text-right">
-            <div class="btn-group" role="group">
-              <button type="button" class="btn btn-secondary" data-dismiss="modal" style="margin-right: 8px;">
-                <i class="fa fa-times"></i> Tutup
-              </button>
-              <a href="#" id="openSurveyNewTab" class="btn btn-primary" target="_blank"
-                style="background: #ff5e14; border-color: #ff5e14;">
-                <i class="fa fa-external-link"></i> Buka di Tab Baru
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-  function showSurveyPopup() {
-    // Fetch available surveys
-    fetch('/api/google-forms/exit-intent')
-      .then(response => response.json())
-      .then(data => {
-        if (data.success && data.forms && data.forms.length > 0) {
-          // Get the first active survey
-          const survey = data.forms[0];
-
-          // Update modal content
-          document.getElementById('surveyContent').innerHTML = `
-          <div class="survey-form-container">
-            <div class="form-header" style="margin-bottom: 20px;">
-              <h5 style="color: #333; margin-bottom: 10px;">${survey.title}</h5>
-              <p style="color: #666; font-size: 14px; margin-bottom: 0;">${survey.description || 'Mohon berikan feedback Anda untuk membantu kami meningkatkan layanan portal data bencana.'}</p>
-            </div>
-            <div class="form-iframe-container" style="position: relative; height: 500px; border: 1px solid #e9ecef; border-radius: 8px; overflow: hidden;">
-              <iframe 
-                src="${survey.form_url}" 
-                style="width: 100%; height: 100%; border: none;"
-                frameborder="0" 
-                allowfullscreen>
-              </iframe>
-            </div>
-          </div>
-        `;
-
-          // Update "Open in New Tab" link
-          document.getElementById('openSurveyNewTab').href = survey.form_url;
-
-          // Show modal
-          $('#surveyModal').modal('show');
-        } else {
-          // No surveys available
-          document.getElementById('surveyContent').innerHTML = `
-          <div class="text-center" style="padding: 40px 20px;">
-            <i class="fa fa-clipboard fa-3x" style="color: #ccc; margin-bottom: 15px;"></i>
-            <h5 style="color: #666;">Survey Belum Tersedia</h5>
-            <p style="color: #999; font-size: 14px;">
-              Saat ini belum ada survey yang aktif. Silakan cek kembali nanti.
-            </p>
-          </div>
-        `;
-          $('#surveyModal').modal('show');
-        }
-      })
-      .catch(error => {
-        console.error('Error fetching survey:', error);
-        document.getElementById('surveyContent').innerHTML = `
-        <div class="text-center" style="padding: 40px 20px;">
-          <i class="fa fa-exclamation-triangle fa-3x" style="color: #dc3545; margin-bottom: 15px;"></i>
-          <h5 style="color: #666;">Terjadi Kesalahan</h5>
-          <p style="color: #999; font-size: 14px;">
-            Gagal memuat survey. Silakan coba lagi nanti.
-          </p>
-        </div>
-      `;
-        $('#surveyModal').modal('show');
-      });
-  }
-</script>
+{% include 'snippets/survey_modal.html' %}

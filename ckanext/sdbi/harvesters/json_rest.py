@@ -9,6 +9,7 @@ import requests
 
 from ckanext.harvest.harvesters.base import HarvesterBase
 from ckanext.harvest.model import HarvestObject
+from ckanext.sdbi.lib.datastore_table import sync_records_to_resource
 from ckanext.sdbi.lib.json_rest import (
     JSONRestConfigError,
     apply_dataset_filters,
@@ -18,6 +19,7 @@ from ckanext.sdbi.lib.json_rest import (
     extract_datasets_from_list_payload,
     parse_harvest_config,
     resolve_detail_url,
+    tabular_records_from_payload,
 )
 
 log = logging.getLogger(__name__)
@@ -134,9 +136,12 @@ class JSONRestHarvester(HarvesterBase):
                 source_dataset = self._get_source_org(harvest_object)
                 if source_dataset:
                     package_dict['owner_org'] = source_dataset
-            return self._create_or_update_package(
+            result = self._create_or_update_package(
                 package_dict, harvest_object, package_dict_form='package_show'
             )
+            if result:
+                self._sync_datastore_table(package_dict, payload)
+            return result
         except Exception as exc:
             log.exception(exc)
             self._save_object_error('%s' % exc, harvest_object, 'Import')
@@ -152,3 +157,32 @@ class JSONRestHarvester(HarvesterBase):
             return source_dataset.get('owner_org')
         except Exception:
             return None
+
+    def _sync_datastore_table(self, package_dict, payload):
+        """Load tabular JSON into DataStore + ensure DataTables view."""
+        records = tabular_records_from_payload(payload)
+        if not records:
+            return
+        try:
+            from ckan.plugins import toolkit
+        except Exception:
+            return
+        context = {'ignore_auth': True, 'user': self._get_user_name()}
+        try:
+            pkg = toolkit.get_action('package_show')(
+                context, {'id': package_dict['id']}
+            )
+        except Exception as exc:
+            log.warning('DataStore sync skipped (package_show): %s', exc)
+            return
+        resources = pkg.get('resources') or []
+        if not resources:
+            return
+        try:
+            sync_records_to_resource(resources[0]['id'], records, context)
+        except Exception as exc:
+            log.warning(
+                'DataStore sync failed for package %s: %s',
+                package_dict.get('id'),
+                exc,
+            )

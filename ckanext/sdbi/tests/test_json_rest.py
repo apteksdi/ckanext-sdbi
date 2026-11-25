@@ -14,6 +14,7 @@ from ckanext.sdbi.lib.json_rest import (
     extract_datasets_from_list_payload,
     parse_harvest_config,
     resolve_detail_url,
+    tabular_records_from_payload,
 )
 
 JAKARTA_DETAIL_URL = (
@@ -180,6 +181,32 @@ def test_apply_dataset_filters_include():
         {'datasets_filter_include': ['keep'], 'datasets_filter_exclude': []},
     )
     assert [item['name'] for item in filtered] == ['keep']
+
+
+def test_tabular_records_from_jakarta_payload():
+    payload = {
+        'data': [
+            {'periode_data': '2025', 'wilayah': 'JAKARTA BARAT', 'jumlah': '1'},
+            {'periode_data': '2025', 'wilayah': 'JAKARTA TIMUR', 'meta': {'x': 1}},
+        ],
+        'total_file': 2,
+        'message': 'success',
+    }
+    records = tabular_records_from_payload(payload)
+    assert len(records) == 2
+    assert records[0]['wilayah'] == 'JAKARTA BARAT'
+    assert records[1]['meta'] == '{"x": 1}'
+
+
+def test_tabular_records_from_list_payload():
+    records = tabular_records_from_payload([{'a': 1}, {'a': 2}])
+    assert records == [{'a': 1}, {'a': 2}]
+
+
+def test_tabular_records_empty_for_non_tabular():
+    assert tabular_records_from_payload({'message': 'ok'}) == []
+    assert tabular_records_from_payload(None) == []
+    assert tabular_records_from_payload({'data': 'not-a-list'}) == []
 
 
 def test_build_package_dict_maps_jakarta_payload_to_ckan_dataset():

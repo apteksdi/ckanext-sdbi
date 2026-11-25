@@ -48,9 +48,20 @@ assert.ok(html.indexOf('<script>') === -1);
 assert.ok(html.indexOf('BPBD &lt;script&gt;') !== -1);
 assert.ok(html.indexOf('tel:021') !== -1);
 assert.ok(html.indexOf('mailto:a@b.c') !== -1);
+assert.ok(html.indexOf('Website:') === -1);
 assert.ok(html.indexOf('provinsi') !== -1);
 assert.ok(html.indexOf('Petunjuk arah') !== -1);
 assert.ok(html.indexOf('destination=-6,106') !== -1);
+
+var htmlWithSite = U.buildPopupHtml({
+  nama_instansi: 'BPBD X',
+  website: 'www.example.go.id'
+});
+assert.ok(htmlWithSite.indexOf('Website:') !== -1);
+assert.ok(htmlWithSite.indexOf('href="https://www.example.go.id"') !== -1);
+assert.strictEqual(U.websiteHref('http://a.id'), 'http://a.id');
+assert.strictEqual(U.websiteHref('www.a.id'), 'https://www.a.id');
+assert.strictEqual(U.websiteHref('-'), '');
 
 assert.strictEqual(U.buildPopupHtml({ nama_instansi: 'X' }).indexOf('tel:'), -1);
 

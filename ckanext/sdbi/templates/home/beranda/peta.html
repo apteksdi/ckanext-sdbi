@@ -1,0 +1,81 @@
+{% set peta_url = 'https://gis.bnpb.go.id/dev/map/' %}
+{#- icon + tone per jenis tanggap darurat, matched by keyword in the room slug -#}
+{% macro room_style(slug) -%}
+{%- set s = (slug or '') | lower -%}
+{%- if 'gempa' in s -%}fa-house-crack|red
+{%- elif 'gunung' in s or 'erupsi' in s -%}fa-mountain|orange
+{%- elif 'banjir' in s -%}fa-water|blue
+{%- elif 'longsor' in s -%}fa-arrow-trend-down|brown
+{%- elif 'karhutla' in s or 'kebakaran' in s -%}fa-fire|red
+{%- elif 'angin' in s or 'cuaca' in s -%}fa-wind|teal
+{%- elif 'kekeringan' in s -%}fa-sun|orange
+{%- else -%}fa-circle-exclamation|gray
+{%- endif -%}
+{%- endmacro %}
+<section id="peta" class="sdbi-home-peta" data-reveal>
+  <div class="sdbi-home-container">
+    <div class="sdbi-home-peta-head">
+      <div>
+        <h2 class="sdbi-home-section-title">Peta Sebaran Bencana di Indonesia</h2>
+        <p class="sdbi-home-section-desc">Pantau kejadian bencana terkini di seluruh wilayah Indonesia.</p>
+      </div>
+      <span class="sdbi-home-live"><span class="sdbi-home-live-dot" aria-hidden="true"></span>Data langsung dari GIS BNPB</span>
+    </div>
+
+    <div class="sdbi-home-peta-grid">
+      <div class="sdbi-home-peta-main">
+        {#- Live GIS map. Scroll/zoom inside the iframe is locked until the visitor
+            clicks it (so the page scroll is never hijacked); the screenshot is a
+            poster shown while the iframe loads. -#}
+        <div class="sdbi-home-peta-map" data-live-map>
+          <img class="sdbi-home-peta-poster" src="{{ h.url_for_static('/img/peta-sebaran-bencana.jpg') }}" alt="" aria-hidden="true">
+          <iframe class="sdbi-home-peta-frame" src="{{ peta_url }}" title="Peta sebaran kejadian bencana di Indonesia (GIS BNPB)"
+            loading="lazy" allow="fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+          <button type="button" class="sdbi-home-peta-activate" data-map-activate hidden>
+            <span><i class="fa fa-hand-pointer" aria-hidden="true"></i> Klik untuk menjelajah peta</span>
+          </button>
+          <div class="sdbi-home-peta-tools">
+            <button type="button" class="sdbi-home-peta-tool" data-map-fullscreen hidden title="Layar penuh" aria-label="Tampilkan peta layar penuh"><i class="fa fa-expand" aria-hidden="true"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <aside class="sdbi-home-tanggap" aria-labelledby="sdbi-home-tanggap-title">
+        <div class="sdbi-home-tanggap-head">
+          <h3 id="sdbi-home-tanggap-title" class="sdbi-home-tanggap-title">Tanggap Darurat</h3>
+          {% if tanggap_rooms %}
+          <span class="sdbi-home-live"><span class="sdbi-home-live-dot" aria-hidden="true"></span>{{ tanggap_rooms | length }} aktif</span>
+          {% endif %}
+        </div>
+        {% if tanggap_rooms %}
+        <ul class="sdbi-home-tanggap-list">
+          {% for room in tanggap_rooms %}
+          {% set style = room_style(room.slug).split('|') %}
+          {% set n = (room.dashboards or []) | length %}
+          <li>
+            <a href="/tanggap-darurat?jenis={{ room.slug }}">
+              <span class="sdbi-home-tanggap-icon sdbi-home-tone-{{ style[1] }}" aria-hidden="true"><i class="fa {{ style[0] }}"></i></span>
+              <span class="sdbi-home-tanggap-text">
+                <span class="sdbi-home-tanggap-label">{{ room.label }}</span>
+                <span class="sdbi-home-tanggap-sub">{% if n %}{{ n }} dashboard{% else %}Belum ada dashboard{% endif %}</span>
+              </span>
+              <i class="fa fa-chevron-right sdbi-home-tanggap-go" aria-hidden="true"></i>
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <div class="sdbi-home-tanggap-empty">
+          <i class="fa fa-circle-check" aria-hidden="true"></i>
+          <p>Belum ada tanggap darurat aktif.</p>
+          {% if c.userobj and c.userobj.sysadmin %}
+          <a class="sdbi-home-tanggap-manage" href="/tanggap-darurat/kelola">Kelola dashboard</a>
+          {% endif %}
+        </div>
+        {% endif %}
+        <a class="sdbi-home-tanggap-foot" href="/tanggap-darurat">Lihat semua tanggap darurat <i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+      </aside>
+    </div>
+    <p class="sdbi-home-peta-note"><i class="fa fa-circle-info" aria-hidden="true"></i> Peta dimuat langsung dari <a href="{{ peta_url }}" target="_blank" rel="noopener">GIS BNPB</a>. Klik peta untuk menggeser, memperbesar, dan memakai filternya.</p>
+  </div>
+</section>

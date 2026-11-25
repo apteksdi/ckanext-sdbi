@@ -6,11 +6,11 @@
   <a class="dataset-card-link" href="{{ h.url_for('dataset.read', id=package.name) }}" aria-label="Buka dataset"></a>
   <div class="dataset-card-header">
     <div class="dataset-icon">
-      <i class="fa fa-file-text-o"></i>
+      <i class="fa fa-file-lines" aria-hidden="true"></i>
     </div>
     <div class="dataset-date-badge">
       <span class="date-badge">
-        <i class="fa fa-clock-o"></i>
+        <i class="fa fa-clock" aria-hidden="true"></i>
         {{ h.render_datetime(package.metadata_created, date_format='%d %b %Y') }}
       </span>
     </div>
@@ -23,7 +23,7 @@
     </h4>
     {% if package.organization %}
     <p class="dataset-org">
-      <i class="fa fa-building-o"></i> {{ package.organization.title }}
+      <i class="fa fa-building" aria-hidden="true"></i> {{ package.organization.title }}
     </p>
     {% endif %}
     {% if package.notes %}

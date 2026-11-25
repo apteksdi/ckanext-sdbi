@@ -1,0 +1,31 @@
+{% macro dot_number(value) -%}{{ '{:,}'.format(value|int).replace(',', '.') }}{%- endmacro %}
+
+{#- One dataset row for the Terbaru / Populer lists.
+    Import with context (needs h): {% from '…/_macros.html' import dataset_item with context %}
+    item: {pkg, views, downloads}; rank: 1-based position (ranked list) or none;
+    share: 0-100 popularity relative to the top item (ranked list) or none;
+    when: relative time text, e.g. "3 hari lalu", or ''. -#}
+{% macro dataset_item(item, rank=none, share=none, when='') -%}
+{% set pkg = item.pkg %}
+{% set formats = (pkg.resources or []) | map(attribute='format') | select | map('upper') | unique | list %}
+{% set main_format = formats[0] if formats else 'DATA' %}
+<li class="sdbi-home-ds-item{% if rank == 1 %} sdbi-home-ds-top{% endif %}">
+  {% if rank %}<span class="sdbi-home-ds-rank" aria-label="Peringkat {{ rank }}">{{ rank }}</span>{% endif %}
+  <span class="sdbi-home-ds-format sdbi-home-fmt-{{ main_format | lower | replace(' ', '') }}" aria-hidden="true">{{ main_format[:4] }}</span>
+  <div class="sdbi-home-ds-body">
+    <a class="sdbi-home-ds-title" href="{{ h.url_for('dataset.read', id=pkg.name) }}">{{ pkg.title or pkg.name }}</a>
+    {% if pkg.organization and pkg.organization.title %}
+    <div class="sdbi-home-ds-org">{{ pkg.organization.title }}</div>
+    {% endif %}
+    <div class="sdbi-home-ds-meta">
+      {% if when %}<span class="sdbi-home-ds-when"><i class="fa fa-clock" aria-hidden="true"></i> {{ when }}</span>{% endif %}
+      <span title="Dilihat"><i class="fa fa-eye" aria-hidden="true"></i> {{ dot_number(item.views) }}<span class="sdbi-home-sr"> kali dilihat</span></span>
+      <span title="Diunduh"><i class="fa fa-download" aria-hidden="true"></i> {{ dot_number(item.downloads) }}<span class="sdbi-home-sr"> kali diunduh</span></span>
+      {% if formats | length > 1 %}<span class="sdbi-home-ds-more-fmt">{{ formats[1:3] | join(', ') }}{% if formats | length > 3 %} +{{ formats | length - 3 }}{% endif %}</span>{% endif %}
+    </div>
+    {% if share is not none %}
+    <div class="sdbi-home-ds-bar" aria-hidden="true"><span style="--sdbi-home-share: {{ share }}%;"></span></div>
+    {% endif %}
+  </div>
+</li>
+{%- endmacro %}

@@ -3,12 +3,18 @@
 {% set username_error = true if error_summary %}
 {% set password_error = true if error_summary %}
 
-{% if h.security_enable_totp() %}
+{% set mfa_enabled = h.security_enable_totp() %}
+{% if mfa_enabled %}
   {% asset 'security/mfa_login' %}
 {% endif %}
 
 <form id="mfa-login-form" action="{{ action }}" method="post" class="form-horizontal">
   {{ h.csrf_input() }}
+  {% if not mfa_enabled %}
+  <div class="alert alert-warning" role="status">
+    MFA/2FA is disabled on this environment (<code>ckanext.security.enable_totp=false</code>). Use username and password only.
+  </div>
+  {% endif %}
   <div class="error-explanation alert alert-error" style="display: none;">
     <p id="invalid-entries">{{ _('The form contains invalid entries:') }}</p>
     <ul>
@@ -25,11 +31,11 @@
     </div>
     {{ form.checkbox('remember', label=_("Remember me"), id='field-remember', checked=true, value="63072000") }}
     <div class="form-actions">
-      <button class="btn btn-primary" type="submit">{{ _('Next') }}</button>
+      <button class="btn btn-primary" type="submit">{% if mfa_enabled %}{{ _('Next') }}{% else %}{{ _('Log in') }}{% endif %}</button>
     </div>
   </div>
 
-  {% if h.security_enable_totp() %}
+  {% if mfa_enabled %}
     <div id="mfa-form" class="mfa" style="display: none;">
       <fieldset id="mfa-setup" class="mfa__setup" style="display: none;">
         <legend class="mfa__title">Pasang authenticator</legend>

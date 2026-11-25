@@ -6,7 +6,7 @@
   <a class="dataset-card-link" href="{{ h.url_for('dataset.read', id=package.name) }}" aria-label="Buka dataset"></a>
   <div class="dataset-card-header">
     <div class="dataset-icon popular-icon">
-      <i class="fa fa-line-chart"></i>
+      <i class="fa fa-chart-line" aria-hidden="true"></i>
     </div>
     <div class="dataset-badge">
       <span class="badge-popular">POPULER</span>
@@ -20,7 +20,7 @@
     </h4>
     {% if package.organization %}
     <p class="dataset-org">
-      <i class="fa fa-building-o"></i> {{ package.organization.title }}
+      <i class="fa fa-building" aria-hidden="true"></i> {{ package.organization.title }}
     </p>
     {% endif %}
     {% if package.notes %}

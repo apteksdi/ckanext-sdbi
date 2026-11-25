@@ -107,10 +107,23 @@ input.mfa__code {
 .mfa label.control-label::after {
   content: none;
 }
-.mfa__actions {
+/* Clear Bootstrap form-horizontal floats so Masuk does not overlap the code field */
+.mfa .control-group {
+  clear: both;
+}
+.mfa .control-group .controls {
+  margin-left: 0;
+}
+.mfa__actions,
+.mfa .form-actions.mfa__actions {
+  clear: both;
+  float: none;
   display: flex;
   align-items: center;
   gap: 16px;
+  width: 100%;
+  margin-top: 16px;
+  padding-left: 0;
 }
 .mfa__help {
   font-size: 14px;

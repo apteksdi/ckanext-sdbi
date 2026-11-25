@@ -11,11 +11,9 @@
         {% endfor %}
       </ul>
   #}
-  {% if h.ckan_version() > '2.9' %}
+  {# Do not pass action='read' — unused kwargs become ?action=read.
+     Also avoid string compare on ckan_version() ('2.10.11' > '2.9' is False). #}
   {% set url = h.url_for(organization.type ~ '.read', id=organization.name) %}
-  {% else %}
-  {% set url = h.url_for(organization.type ~ '_read', action='read', id=organization.name) %}
-  {% endif %}
   
   {% block item %}
   <tr>

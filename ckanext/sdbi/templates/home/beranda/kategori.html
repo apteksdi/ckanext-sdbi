@@ -1,0 +1,30 @@
+{% from 'home/beranda/_macros.html' import dot_number %}
+{% set counts = h.sdbi_beranda_kategori_counts() %}
+<section id="kategori" class="sdbi-home-kategori" data-reveal>
+  <div class="sdbi-home-container">
+    <div class="sdbi-home-section-head">
+      <h2 class="sdbi-home-section-title sdbi-home-title-accent">Kategori Dataset</h2>
+      <a class="sdbi-home-more" href="{{ h.url_for('dataset.search') }}">Lihat Semua <i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+    </div>
+    <div class="sdbi-home-kategori-grid">
+      {% for label, desc, url, icon, tone, key in [
+        ('Kejadian Bencana', 'Catatan kejadian bencana di seluruh daerah', '/dataset/?q=kejadian', 'fa-wave-square', 'blue', 'kejadian'),
+        ('Dampak Bencana', 'Korban, kerusakan, dan kerugian', '/dataset/?q=dampak', 'fa-users', 'pink', 'dampak'),
+        ('Mitigasi & Kesiapsiagaan', 'Risiko dan kesiapan sebelum bencana', '/dataset/?fase=prabencana', 'fa-shield', 'green', 'prabencana'),
+        ('Penanganan Darurat', 'Data saat tanggap darurat berlangsung', '/dataset/?fase=saatbencana', 'fa-truck-medical', 'orange', 'saatbencana'),
+        ('Pemulihan Pascabencana', 'Rehabilitasi dan rekonstruksi', '/dataset/?fase=pascabencana', 'fa-house-chimney', 'purple', 'pascabencana'),
+        ('Data Lainnya', 'Jelajahi seluruh katalog dataset', '/dataset/', 'fa-database', 'gray', 'total')] %}
+      <a class="sdbi-home-kategori-card sdbi-home-tone-{{ tone }}" href="{{ url }}" style="--sdbi-home-i: {{ loop.index0 }};">
+        <i class="fa {{ icon }} sdbi-home-kategori-watermark" aria-hidden="true"></i>
+        <span class="sdbi-home-kategori-icon" aria-hidden="true"><i class="fa {{ icon }}"></i></span>
+        {% if counts is not none %}
+        <span class="sdbi-home-kategori-count"><strong data-count="{{ counts[key]|int }}">{{ dot_number(counts[key]) }}</strong> dataset</span>
+        {% endif %}
+        <span class="sdbi-home-kategori-label">{{ label }}</span>
+        <span class="sdbi-home-kategori-desc">{{ desc }}</span>
+        <span class="sdbi-home-kategori-go" aria-hidden="true"><i class="fa fa-arrow-right"></i></span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>

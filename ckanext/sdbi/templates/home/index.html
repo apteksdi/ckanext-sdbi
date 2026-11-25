@@ -1,0 +1,34 @@
+{% extends "page.html" %}
+
+{% block subtitle %}Beranda{% endblock %}
+
+{% block custom_styles %}
+  {{ super() }}
+  <link rel="stylesheet" href="/base/vendor/fontawesome-free/css/all.css">
+  <link rel="stylesheet" href="{{ h.url_for_static('/css/beranda.css') }}?v=27">
+{% endblock %}
+
+{#- Header, footer and all scripts come from page.html (global header.html /
+    footer.html). Only the content block is replaced; flash is in beranda/flash.html. -#}
+{% block content %}
+{% set stats = h.sdbi_theme_connected_statistics() or {} %}
+{% set tanggap_rooms = h.sdbi_tanggap_rooms() or [] %}
+{% set extras = h.sdbi_beranda_extras() or {} %}
+<div class="sdbi-home" id="content">
+  <main class="sdbi-home-main">
+    {% include 'home/beranda/flash.html' %}
+    {% include 'home/beranda/hero.html' %}
+    {% include 'home/beranda/peta.html' %}
+    {% include 'home/beranda/kategori.html' %}
+    {% include 'home/beranda/konten.html' %}
+    {% include 'home/beranda/panduan.html' %}
+    {% include 'home/beranda/penyedia.html' %}
+    {% include 'home/beranda/ekosistem.html' %}
+  </main>
+</div>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script src="{{ h.url_for_static('/js/beranda.js') }}?v=5" defer></script>
+{% endblock %}

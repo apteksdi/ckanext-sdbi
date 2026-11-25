@@ -139,6 +139,13 @@
 .bantuan__category-body {
   padding: 0 12px 12px;
 }
+.bantuan__category-body > .bantuan__category {
+  margin-top: 8px;
+  margin-left: 4px;
+}
+.bantuan__category-body > .bantuan__category:first-child {
+  margin-top: 0;
+}
 .bantuan__item {
   border: 1px solid #d5e0e4;
   border-radius: 6px;
@@ -197,6 +204,38 @@
   font-size: 15px;
   line-height: 1.6;
   max-width: 72ch;
+}
+.bantuan__answer-text {
+  margin: 0;
+}
+.bantuan__file {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 8px 14px;
+  border: 1.5px solid #206b82;
+  border-radius: 6px;
+  color: #206b82;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+}
+.bantuan__file:hover,
+.bantuan__file:focus {
+  background: #eef7fa;
+  color: #0f4c5c;
+  border-color: #0f4c5c;
+  text-decoration: none;
+}
+.bantuan__file:focus-visible {
+  outline: 2px solid #206b82;
+  outline-offset: 2px;
+}
+.bantuan__file-icon {
+  flex: 0 0 auto;
 }
 
 .bantuan mark {

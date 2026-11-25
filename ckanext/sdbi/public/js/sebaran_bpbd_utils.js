@@ -13,6 +13,17 @@
       .replace(/'/g, '&#39;');
   }
 
+  function websiteHref(value) {
+    var raw = String(value || '').trim();
+    if (!raw || raw === '-' || raw === '–') {
+      return '';
+    }
+    if (/^https?:\/\//i.test(raw)) {
+      return raw;
+    }
+    return 'https://' + raw;
+  }
+
   function filterBpbdFeatures(features, query, limit) {
     var q = String(query || '').trim().toLowerCase();
     if (!q || !features || !features.length) {
@@ -75,6 +86,16 @@
           escapeHtml(props.email) +
           '">' +
           escapeHtml(props.email) +
+          '</a></p>'
+      );
+    }
+    var siteHref = websiteHref(props.website);
+    if (siteHref) {
+      parts.push(
+        '<p><strong>Website:</strong> <a href="' +
+          escapeHtml(siteHref) +
+          '" target="_blank" rel="noopener">' +
+          escapeHtml(String(props.website).trim()) +
           '</a></p>'
       );
     }
@@ -155,6 +176,7 @@
 
   root.SebaranBpbdUtils = {
     escapeHtml: escapeHtml,
+    websiteHref: websiteHref,
     filterBpbdFeatures: filterBpbdFeatures,
     buildPopupHtml: buildPopupHtml,
     bpbdBounds: bpbdBounds

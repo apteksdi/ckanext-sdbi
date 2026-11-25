@@ -1,19 +1,535 @@
-.masthead .navigation .dropdown-menu {
+/*
+ * Root cause (Isi Survey “not showing”):
+ * CKAN webassets ship Bootstrap 5 JS (adds class .show) with Bootstrap 3 CSS
+ * (visible state is .in → opacity:1). Modal gets .show but stays opacity:0.
+ */
+.fade.show {
+  opacity: 1;
+}
+.modal.fade.show .modal-dialog {
+  -webkit-transform: translate(0, 0);
+  -ms-transform: translate(0, 0);
+  -o-transform: translate(0, 0);
+  transform: translate(0, 0);
+}
+.modal-backdrop.fade.show {
+  filter: alpha(opacity=50);
+  opacity: 0.5;
+}
+
+/* CKAN 2.10 search_form puts <button> next to <input> without .input-group-btn;
+   Bootstrap 3 then drops the button under the field (form-control width:100%). */
+.search-form .input-group.search-input-group {
+  display: flex;
+  width: 100%;
+  align-items: stretch;
+}
+.search-form .search-input-group > .form-control {
+  float: none;
+  width: auto;
+  flex: 1 1 auto;
+}
+.search-form .search-input-group > .btn {
+  flex: 0 0 auto;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/*
+ * Resource "Add data" upload UI broken on CKAN 2.10 LTR main.css:
+ * stale rules set .resource-upload-field { overflow:hidden } and hide ALL
+ * inputs with opacity:0 / absolute positioning. Correct styles exist in
+ * _forms.scss / main-rtl.css but were not compiled into LTR main.css.
+ */
+.resource-upload-field {
+  position: static !important;
+  overflow: visible !important;
+  display: block !important;
+  vertical-align: baseline !important;
+}
+.resource-upload-field label {
+  z-index: auto !important;
+}
+/* Undo stale CKAN LTR main.css that hid every input inside this widget */
+.resource-upload-field input:not([type="radio"]):not(#field-clear-upload) {
+  filter: none !important;
+  opacity: 1 !important;
+  position: static !important;
+  top: auto !important;
+  right: auto !important;
+  z-index: auto !important;
+  margin: revert;
+  border: initial;
+  cursor: auto;
+  direction: ltr;
+  -moz-transform: none !important;
+  transform: none !important;
+}
+.resource-upload-field > input[type="radio"] {
+  display: none !important;
+}
+.resource-upload-field > div.select-type {
+  position: relative;
+  display: none;
+}
+.resource-upload-field > input[type="radio"]:checked + div.select-type {
+  display: block !important;
+}
+.resource-upload-field label.btn::after {
+  content: "";
+}
+.resource-upload-field .btn-remove-url {
+  position: absolute;
+  margin-right: 0;
+  margin-top: 11px;
+  top: 1.5rem;
+  right: 0.25rem;
+  padding: 0 12px;
+  border-radius: 100px;
+}
+.resource-upload-field .btn-remove-url .icon-remove {
+  margin-right: 0;
+}
+.resource-upload-field input#field-clear-upload {
+  display: none !important;
+}
+.resource-upload-field input#field-clear-upload + div.upload-type {
+  display: block;
+}
+.resource-upload-field input#field-clear-upload ~ .upload-type {
+  display: none;
+}
+.resource-upload-field input#field-clear-upload:checked + div.upload-type {
+  display: none;
+}
+.resource-upload-field input#field-clear-upload:checked ~ .upload-type {
+  display: block;
+}
+.resource-upload-field #field-resource-upload {
+  display: block !important;
+  width: 100% !important;
+  opacity: 1 !important;
+  position: static !important;
+  transform: none !important;
+  cursor: pointer !important;
+}
+
+/* ========== Unified BNPB-style header ========== */
+.account-masthead {
+  display: none !important;
+}
+
+header.masthead.site-header,
+header.navbar.masthead.site-header {
+  margin: 0;
+  padding: 0;
+  color: #fff;
+  background: #044085;
+  border: 0;
+  border-bottom: 2px solid #c4a35a;
+  min-height: 56px;
+  box-shadow: none;
+  /* Above .module-resource (z-index:5) so nav dropdowns aren't covered on resource pages */
+  position: relative;
+  z-index: 1030;
+  overflow: visible;
+}
+
+.site-header__inner {
+  display: flex !important;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 8px 12px;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+/* Bootstrap 3 .container clearfix ::before/::after become flex items and
+   can shove .site-header__tools onto a second row after login. */
+header.masthead.site-header .site-header__inner:before,
+header.masthead.site-header .site-header__inner:after {
+  display: none !important;
+  content: none !important;
+}
+
+.site-header__brand,
+.masthead hgroup.navbar-left,
+header.masthead.site-header hgroup {
+  float: none !important;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+}
+
+.site-header__brand .logo,
+.site-header__logo-lockup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none !important;
+  color: #fff !important;
+}
+
+.site-header__brand .logo img,
+.site-header__logo-img,
+.masthead hgroup .logo img {
+  display: block;
+  height: 40px;
+  width: auto;
+  max-width: min(241px, 46vw);
+  flex: 0 0 auto;
+  object-fit: contain;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  padding: 0 !important;
+}
+
+/* Kill CKAN/theme leftovers that print a second site title next to the logo */
+.site-header__brand .site-title,
+.site-header__brand h1,
+.masthead hgroup .site-title,
+.masthead hgroup h1 {
+  display: none !important;
+}
+
+.site-header__toggle {
+  order: 3;
+  margin-left: 0;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: transparent;
+  color: #fff;
+  padding: 6px 10px;
+}
+
+.site-header__toggle .fa-bars {
+  color: #fff;
+}
+
+.site-header__collapse,
+header.masthead.site-header .navbar-collapse,
+header.masthead.site-header .section {
+  float: none !important;
+}
+
+/* Mobile-first: collapse is a full-width drawer under the brand/tools row.
+   Bootstrap 3 forces .navbar-collapse.collapse { display:block } from 768px —
+   we override that below 992 so the masthead stays one row + hamburger. */
+.site-header__collapse {
+  order: 4;
+  flex: 1 1 100%;
+  width: 100%;
+  min-width: 0;
+}
+
+.site-header__tools {
+  order: 2;
+  display: flex;
+  flex: 0 0 auto;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.site-header__nav {
+  float: none !important;
+  overflow: visible !important;
+}
+
+.site-header__nav .nav-pills {
+  float: none !important;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 4px;
+  margin: 0;
+  overflow: visible !important;
+}
+
+.site-header__nav .nav-pills > li {
+  float: none;
+}
+
+.site-header__nav .nav-pills > li > a,
+.site-header__menu-item {
+  color: #fff !important;
+  background: transparent !important;
+  border-radius: 0;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.site-header__nav .nav-pills > li > a:hover,
+.site-header__nav .nav-pills > li > a:focus,
+.site-header__nav .nav-pills > li.active > a,
+.site-header__nav .nav-pills > .open > a {
+  color: #fff !important;
+  background: rgba(255, 255, 255, 0.12) !important;
+}
+
+.site-header__search {
+  float: none !important;
+  position: relative;
+  margin: 0;
+  display: flex;
+  align-items: center;
+}
+
+.site-header__search-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+}
+
+.site-header__search-toggle:hover,
+.site-header__search.is-open .site-header__search-toggle {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+.site-header__search-toggle:focus {
+  outline: none;
+}
+.site-header__search-toggle:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.site-header__search-panel {
   position: absolute;
   top: 100%;
+  right: 0;
+  z-index: 2200;
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  margin-top: 8px;
+  padding: 8px;
+  min-width: min(320px, 90vw);
+  background: #fff;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  box-shadow: 0 8px 20px rgba(9, 31, 47, 0.2);
+}
+
+.site-header__search-panel[hidden] {
+  display: none !important;
+}
+
+.site-header__search-panel .form-control {
+  flex: 1 1 auto;
+  height: 36px;
+  margin: 0;
+  border: 1px solid #d0d7de;
+  border-radius: 4px 0 0 4px;
+  box-shadow: none;
+  color: #091f2f;
+}
+
+.site-header__search-submit {
+  height: 36px;
+  padding: 0 12px;
+  border: 1px solid #044085;
+  border-left: 0;
+  border-radius: 0;
+  background: #044085;
+  color: #fff;
+  cursor: pointer;
+}
+
+.site-header__search-close {
+  height: 36px;
+  padding: 0 10px;
+  margin-left: 4px;
+  border: 1px solid #d0d7de;
+  border-radius: 4px;
+  background: #f8f9fa;
+  color: #091f2f;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.site-header__account {
+  display: flex;
+  align-items: center;
+  margin-left: 0;
+}
+
+.site-header__auth {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.site-header__auth a,
+.site-header__login,
+.site-header__register {
+  color: #fff !important;
+  font-weight: 600;
+  font-size: 13px;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 6px 10px;
+}
+
+.site-header__auth a:hover {
+  background: rgba(255, 255, 255, 0.12);
+  text-decoration: none;
+}
+
+.site-header__user {
+  position: relative;
+}
+
+.site-header__user-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #fff !important;
+  text-decoration: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.site-header__user-toggle:hover,
+.site-header__user-toggle:focus,
+.site-header__user.open > .site-header__user-toggle {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff !important;
+  text-decoration: none;
+}
+
+.site-header__avatar,
+.site-header__user-toggle img.user-image {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  vertical-align: middle;
+  background: #fff;
+}
+
+.site-header__user-name {
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.site-header__user-toggle .caret {
+  border-top-color: #fff;
+  border-bottom-color: #fff;
+}
+
+.site-header__user {
+  position: relative;
+}
+.site-header__user-menu {
+  right: 0;
+  left: auto;
+  top: calc(100% - 2px);
+  z-index: 2100;
+  min-width: 180px;
+  margin-top: 0;
+  padding: 6px 0;
+  background: #fff;
+  border: 1px solid #d0d7de;
+  box-shadow: 0 6px 16px rgba(9, 31, 47, 0.18);
+}
+.site-header__user-menu::before {
+  content: "";
+  position: absolute;
   left: 0;
-  z-index: 2000;
+  right: 0;
+  top: -18px;
+  height: 20px;
+}
+
+.site-header__user-menu > li > a {
+  color: #091f2f;
+  padding: 8px 16px;
+}
+
+.site-header__user-menu > li > a:hover,
+.site-header__user-menu > li > a:focus {
+  background: #044085;
+  color: #fff;
+}
+
+.js .site-header__user:hover > .dropdown-menu,
+.js .site-header__user.open > .dropdown-menu {
+  display: block;
+}
+
+/* Tanggap / nav dropdowns */
+.masthead .navigation .dropdown-toggle::after,
+.masthead .navigation .dropdown-toggle::before,
+.site-header__user-toggle::after {
+  display: none !important;
+  content: none !important;
+  border: 0 !important;
+}
+.masthead .navigation .dropdown-toggle .caret {
+  display: inline-block;
+  margin-left: 6px;
+  vertical-align: middle;
+  border-top-color: #fff;
+}
+
+.masthead .navigation .dropdown-menu {
+  position: absolute;
+  /* Overlap trigger slightly so pointer never hits a dead gap */
+  top: calc(100% - 2px);
+  left: 0;
+  z-index: 2300;
   min-width: 220px;
   padding: 6px 0;
-  margin: 0;
+  margin: 0 !important;
   font-size: 14px;
   background-color: #fff;
   border: 1px solid #d0d7de;
   box-shadow: 0 6px 16px rgba(9, 31, 47, 0.18);
+  text-transform: none;
 }
-.js .masthead .navigation .dropdown:hover > .dropdown-menu,
-.js .masthead .navigation .dropdown.open > .dropdown-menu {
-  display: block;
+
+/* Beat CKAN theme (.js .dropdown:hover .dropdown-menu { display:none }) */
+.js .site-header .navigation .dropdown:hover > .dropdown-menu,
+.js .site-header .navigation .dropdown.open > .dropdown-menu,
+.site-header .navigation .dropdown:hover > .dropdown-menu,
+.site-header .navigation .dropdown.open > .dropdown-menu {
+  display: block !important;
+}
+
+/* Tanggap: keep menu under the trigger; bridge the hover gap */
+.site-header__nav .nav-pills > li.dropdown {
+  position: relative;
+}
+.site-header__nav .nav-pills > li.dropdown > .dropdown-menu::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -20px;
+  height: 22px;
 }
 .masthead .navigation .nav-pills .dropdown-menu > li > a,
 .masthead .navigation .nav-pills .dropdown-menu > li > a:hover,
@@ -21,12 +537,306 @@
   color: #091f2f;
   background-color: transparent;
   padding: 8px 16px;
+  text-transform: none;
+  font-weight: 500;
 }
 .masthead .navigation .nav-pills .dropdown-menu > li > a:hover,
 .masthead .navigation .nav-pills .dropdown-menu > li > a:focus,
 .masthead .navigation .nav-pills .dropdown-menu > .active > a,
 .masthead .navigation .nav-pills .dropdown-menu > .active > a:hover,
 .masthead .navigation .nav-pills .dropdown-menu > .active > a:focus {
-  background-color: #206b82;
+  background-color: #044085;
   color: #fff;
+}
+
+/* Phone / narrow: hamburger. Defeat BS3 showing collapse from 768px. */
+@media (max-width: 991px) {
+  header.masthead.site-header .site-header__inner {
+    flex-wrap: wrap;
+  }
+  header.masthead.site-header .site-header__toggle {
+    display: block !important;
+    order: 3;
+  }
+  header.masthead.site-header .navbar-collapse.collapse:not(.in):not(.show) {
+    display: none !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 0 !important;
+  }
+  header.masthead.site-header .navbar-collapse.collapse.in,
+  header.masthead.site-header .navbar-collapse.collapse.show,
+  header.masthead.site-header .navbar-collapse.collapsing {
+    display: block !important;
+    order: 4;
+    flex: 1 1 100%;
+    width: 100% !important;
+    height: auto !important;
+    margin-top: 8px;
+    padding: 8px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    overflow: visible !important;
+  }
+  .site-header__nav .nav-pills {
+    flex-direction: column;
+    align-items: stretch;
+    flex-wrap: nowrap;
+  }
+  .site-header__search-panel {
+    right: 0;
+    left: auto;
+    min-width: min(320px, 90vw);
+  }
+  .site-header__user-name {
+    max-width: 100px;
+  }
+}
+
+/* Desktop: one masthead row (brand | nav | tools). Was 1200px — left
+   768–1199 broken because BS3 keeps collapse open while we forced wrap. */
+@media (min-width: 992px) {
+  header.masthead.site-header .navbar-collapse,
+  header.masthead.site-header .site-header__collapse,
+  header.masthead.site-header .section {
+    float: none !important;
+  }
+  header.masthead.site-header .site-header__inner {
+    flex-wrap: nowrap !important;
+  }
+  .site-header__toggle {
+    display: none !important;
+  }
+  .site-header__collapse,
+  header.masthead.site-header .navbar-collapse.collapse {
+    order: 2;
+    display: flex !important;
+    flex: 1 1 0 !important;
+    min-width: 0;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    width: auto !important;
+    height: auto !important;
+    max-height: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    overflow: visible !important;
+    float: none !important;
+  }
+  .site-header__tools {
+    order: 3;
+    flex: 0 0 auto !important;
+    flex-shrink: 0 !important;
+    margin-left: 4px;
+  }
+  .site-header__nav {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+  }
+  .site-header__nav .nav-pills {
+    justify-content: flex-end;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    width: max-content;
+    max-width: none;
+  }
+  .site-header__nav .nav-pills > li > a,
+  .site-header__menu-item {
+    padding: 8px 6px;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+  .site-header__search,
+  .site-header__account {
+    flex: 0 0 auto;
+  }
+  .site-header__user-name {
+    max-width: 88px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .site-header__nav .nav-pills > li > a,
+  .site-header__menu-item {
+    padding: 8px 8px;
+    font-size: 12px;
+  }
+}
+
+/* ========== CKAN Data API modal (Bootstrap 5 accordion, theme-safe) ========== */
+.sdbi-api-info-modal .modal-dialog {
+  max-width: 720px;
+}
+.sdbi-api-info-modal .modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid #e5e9ef;
+  padding: 16px 20px;
+}
+.sdbi-api-info-modal .modal-header .modal-title,
+.sdbi-api-info-modal .modal-header h3 {
+  margin: 0;
+  flex: 1 1 auto;
+  font-size: 1.25rem;
+  font-weight: 600;
+  line-height: 1.3;
+  border: 0;
+  padding: 0;
+}
+/* api-info.js appends .btn-close onto .modal-header; theme may miss BS5 mask */
+.sdbi-api-info-modal .modal-header .btn-close {
+  width: 1.5rem;
+  height: 1.5rem;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  opacity: 0.65;
+  background: transparent;
+  box-shadow: none;
+  position: relative;
+}
+.sdbi-api-info-modal .modal-header .btn-close::before {
+  content: "\00d7";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  font-weight: 300;
+  line-height: 1;
+  color: #223;
+}
+.sdbi-api-info-modal .modal-header .btn-close:hover {
+  opacity: 1;
+  background: #eef2f6;
+}
+.sdbi-api-info-modal .modal-body {
+  padding: 16px 20px 20px;
+}
+.sdbi-api-info-lead {
+  margin: 0 0 16px;
+  color: #334;
+  line-height: 1.5;
+}
+.sdbi-api-accordion.accordion {
+  --bs-accordion-border-color: #d8dee6;
+  --bs-accordion-btn-bg: #f5f7fa;
+  --bs-accordion-active-bg: #e8eef6;
+  --bs-accordion-active-color: #044085;
+  --bs-accordion-btn-focus-box-shadow: 0 0 0 0.2rem rgba(4, 64, 133, 0.15);
+}
+.sdbi-api-accordion .accordion-item {
+  border: 1px solid #d8dee6;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  background: #fff;
+}
+.sdbi-api-accordion .accordion-item:last-child {
+  margin-bottom: 0;
+}
+.sdbi-api-accordion .accordion-header {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 15px;
+}
+.sdbi-api-accordion .accordion-button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 0;
+  height: auto;
+  margin: 0;
+  padding: 12px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.3;
+  text-align: left;
+  color: #091f2f !important;
+  background-color: #f5f7fa !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  text-decoration: none !important;
+}
+.sdbi-api-accordion .accordion-button:not(.collapsed) {
+  color: #044085 !important;
+  background-color: #e8eef6 !important;
+  box-shadow: none !important;
+}
+.sdbi-api-accordion .accordion-button:hover,
+.sdbi-api-accordion .accordion-button:focus {
+  color: #044085 !important;
+  background-color: #eef3f9 !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  text-decoration: none !important;
+}
+.sdbi-api-accordion .accordion-button::after {
+  flex-shrink: 0;
+  width: 1rem;
+  height: 1rem;
+  margin-left: auto;
+  content: "";
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23212529'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-size: 1rem;
+  transition: transform 0.2s ease;
+}
+.sdbi-api-accordion .accordion-button:not(.collapsed)::after {
+  transform: rotate(-180deg);
+}
+.sdbi-api-accordion .accordion-body {
+  padding: 14px 16px 16px;
+  border-top: 1px solid #e5e9ef;
+  background: #fff;
+}
+.sdbi-api-table {
+  margin-bottom: 0;
+  word-break: break-all;
+}
+.sdbi-api-table th {
+  width: 28%;
+  white-space: nowrap;
+  vertical-align: top;
+}
+.sdbi-api-table code,
+.sdbi-api-accordion .accordion-body code {
+  display: inline-block;
+  max-width: 100%;
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-size: 12px;
+}
+.sdbi-api-code {
+  display: block;
+  margin: 0;
+  padding: 12px 14px;
+  background: #0f172a;
+  color: #e2e8f0;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.45;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+/* Soften core accordion if override ever loses the race again */
+.modal .accordion-button {
+  box-shadow: none;
+}
+.modal .accordion-item + .accordion-item {
+  margin-top: 0.5rem;
 }

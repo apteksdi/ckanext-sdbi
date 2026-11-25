@@ -1,0 +1,48 @@
+{# Account slot for unified masthead: Login (guest) or avatar dropdown (user). #}
+<div class="site-header__account">
+  {% if c.userobj %}
+  <div class="site-header__user dropdown">
+    <a href="#" class="site-header__user-toggle dropdown-toggle" data-toggle="dropdown"
+      role="button" aria-haspopup="true" aria-expanded="false"
+      title="{{ c.userobj.display_name }}"
+      aria-label="{{ _('Account menu') }}: {{ c.userobj.display_name }}">
+      {% set profile_img = h.url_for_static_or_external(c.userobj.image_display_url) if c.userobj.image_display_url else h.url_for_static('/base/images/placeholder-user.png') %}
+      <img src="{{ profile_img }}" class="user-image site-header__avatar" width="28" height="28" alt=""
+        onerror="this.onerror=null;this.src='{{ h.url_for_static('/base/images/placeholder-user.png') }}';" />
+      <span class="site-header__user-name">{{ c.userobj.display_name }}</span>
+      <span class="caret" aria-hidden="true"></span>
+    </a>
+    <ul class="dropdown-menu dropdown-menu-right site-header__user-menu">
+      <li>
+        <a href="{{ h.url_for('user.read', id=c.userobj.name) }}">{{ _('Profile') }}</a>
+      </li>
+      <li>
+        <a href="{{ h.url_for('user.edit', id=c.userobj.name) }}">{{ _('Profile settings') }}</a>
+      </li>
+      <li class="divider" role="separator"></li>
+      <li><a href="{{ h.url_for('activity.dashboard') }}">{{ _('Dashboard') }}</a></li>
+      <li><a href="{{ h.url_for('pages.pages_index') }}">{{ _('Pages') }}</a></li>
+      <li><a href="{{ h.url_for('pages.blog_index') }}">{{ _('Blog') }}</a></li>
+      <li><a href="/analytics">Analytics</a></li>
+      {% if c.userobj.sysadmin %}
+      <li class="divider" role="separator"></li>
+      <li><a href="/harvest">Harvest</a></li>
+      <li><a href="{{ h.url_for('admin.index') }}">{{ _('Admin') }}</a></li>
+      <li><a href="{{ h.url_for('user.api_tokens', id=c.userobj.name) }}">{{ _('API Tokens') }}</a></li>
+      <li><a href="/google-forms">Google Forms</a></li>
+      {% endif %}
+      <li class="divider" role="separator"></li>
+      <li>
+        <a href="{{ h.url_for('user.logout') }}">{{ _('Log out') }}</a>
+      </li>
+    </ul>
+  </div>
+  {% else %}
+  <ul class="site-header__auth list-unstyled">
+    <li>{% link_for _('Log in'), named_route='user.login', class_='site-header__login' %}</li>
+    {% if h.check_access('user_create') %}
+    <li>{% link_for _('Register'), named_route='user.register', class_='site-header__register' %}</li>
+    {% endif %}
+  </ul>
+  {% endif %}
+</div>

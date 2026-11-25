@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 from flask import Blueprint, Response, request, abort, jsonify
 import io
-import json
-import os
 
 from ckan.plugins import toolkit
 import ckan.authz as authz
@@ -11,15 +9,13 @@ from ckanext.sdbi.lib.bpbd import (
     BpbdImportError,
     csv_to_records,
     geojson_to_csv,
+    load_geojson,
+    load_records,
     records_to_geojson,
+    replace_records,
 )
 
 sebaran_bpbd_blueprint = Blueprint('sebaran_bpbd', __name__)
-
-_PUBLIC_DATA = os.path.join(
-    os.path.dirname(os.path.dirname(__file__)), 'public', 'data'
-)
-_BPBD_JSON = os.path.join(_PUBLIC_DATA, 'bpbd.json')
 
 
 def _require_sysadmin():
@@ -29,10 +25,7 @@ def _require_sysadmin():
 
 
 def _load_bpbd_geojson():
-    if not os.path.isfile(_BPBD_JSON):
-        return {'type': 'FeatureCollection', 'features': []}
-    with open(_BPBD_JSON, 'r') as handle:
-        return json.load(handle)
+    return load_geojson()
 
 
 @sebaran_bpbd_blueprint.route('/sebaran-bpbd', methods=['GET'])
@@ -72,19 +65,17 @@ def import_csv():
     try:
         content = uploaded.read().decode('utf-8-sig')
         records = csv_to_records(io.StringIO(content))
-        geojson = records_to_geojson(records)
-        if not os.path.isdir(_PUBLIC_DATA):
-            os.makedirs(_PUBLIC_DATA)
-        with open(_BPBD_JSON, 'w') as handle:
-            json.dump(geojson, handle, ensure_ascii=False, indent=2)
+        stored = replace_records(records)
+        geojson = records_to_geojson(stored)
     except BpbdImportError as exc:
         return _import_error(str(exc))
     except Exception as exc:
         return _import_error('Impor gagal: %s' % exc)
     return jsonify({
         'success': True,
-        'imported': len(records),
+        'imported': len(stored),
         'mapped': len(geojson.get('features') or []),
+        'total_db': len(load_records()),
     })
 
 

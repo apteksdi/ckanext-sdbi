@@ -1,5 +1,7 @@
 # How to implement — Portal Data BNPB
 
+**Dokumen paparan gabungan (status + screenshot + how-to ringkas + justifikasi embed):** [`DOC-2026-09-29.md`](DOC-2026-09-29.md).
+
 Cara menjalankan stack di [`PRD.md`](PRD.md) secara lokal, lalu memindahkan produksi dari CKAN **2.9.11** ke **2.10.11**. Progres: [`STATUS.md`](STATUS.md).
 
 **Belum dijalankan di produksi.** Kerjakan staging dulu. Jaga `CKAN__DATASTORE__SQLSEARCH__ENABLED=false` sepanjang proses.
@@ -40,7 +42,7 @@ Dari `result`:
 | `sdbi_json_harvester` | Ada | Tidak | Harvest JSON REST |
 | `resourceauthorizer` | Tidak | Ada | Jangan di 2.10 |
 | `dcat`, `dcat_*`, `structured_data` | Tidak | Ada | Katalog RDF; bukan harvest Jakarta |
-| `sdbi` | Terakhir | Lebih awal | Auth SQL override |
+| `sdbi` | Terakhir | **Terakhir** (B2 deploy) | Auth SQL override |
 
 Laporan lengkap (Fase 0–4, risiko, langkah produksi): [`STATUS.md`](STATUS.md).
 
@@ -51,7 +53,7 @@ Laporan lengkap (Fase 0–4, risiko, langkah produksi): [`STATUS.md`](STATUS.md)
 | `ckan_version` | **2.10.11** | **2.9.11** |
 | `site_title` | CKAN | Portal Satu Data Bencana Indonesia |
 | `site_url` | http://localhost:8080 | https://data.bnpb.go.id |
-| `sdbi` | **Terakhir** (benar untuk 2.10) | Indeks 6 dari 34 (lebih awal) |
+| `sdbi` | **Terakhir** (benar untuk 2.10) | **Terakhir** (B2 sudah deploy) |
 
 **Hanya lokal:** `activity`, `sdbi_json_harvester`  
 **Hanya produksi:** `resourceauthorizer`, `structured_data` (terdaftar **dua kali**), `dcat`, `dcat_rdf_harvester`, `dcat_json_harvester`, `dcat_json_interface`  
@@ -347,7 +349,7 @@ docker exec ckan ckan -c /srv/app/ckan.ini security reset-totp <username>
 ### 5. Urutan penerapan
 
 1. B0 di produksi (env + recreate, tanpa build) — **selesai**
-2. B2 di `ckanext-sdbi` — **selesai** di tree ini
+2. B2 produksi (`sdbi` terakhir / auth SQL tolak) — **selesai**
 3. B1 staging, lalu image produksi ke **2.10.11**
 4. Fase 0/1 di image itu (`security migrate`, plugin harvester di web **dan** worker)
 5. Fase 2–4 ikut image yang sama

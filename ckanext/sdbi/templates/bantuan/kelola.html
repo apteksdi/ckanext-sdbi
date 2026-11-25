@@ -17,7 +17,7 @@
       {{ h.csrf_input() }}
       <label for="payload">JSON FAQ</label>
       <textarea id="payload" name="payload" rows="24" style="width:100%;font-family:monospace;font-size:13px;" required>{{ payload }}</textarea>
-      <p class="help-block">Bentuk: <code>{"categories":[{"id":"...","title":"...","questions":[{"q":"...","a":"..."}]}]}</code></p>
+      <p class="help-block">Bentuk flat: <code>{"categories":[{"id":"...","title":"...","questions":[{"q":"...","a":"...","file_url":"https://...","file_label":"Referensi File"}]}]}</code>. Nested folder: tambah <code>children</code> (node dengan <code>id</code>, <code>title</code>, opsional <code>questions</code>/<code>children</code>, max 8 level). <code>file_url</code> opsional (http/https); <code>file_label</code> opsional (default Referensi File).</p>
       <div class="form-actions">
         <button class="btn btn-primary" type="submit">Simpan</button>
         <a class="btn btn-default" href="/bantuan">Kembali ke Bantuan</a>

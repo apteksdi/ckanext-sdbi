@@ -2,4 +2,4 @@ include README.rst
 include LICENSE
 include requirements.txt
 recursive-include readme *.md
-recursive-include ckanext/sdbi *.html *.json *.js *.less *.css *.mo
+recursive-include ckanext/sdbi *.html *.json *.js *.less *.css *.mo *.png *.jpg *.jpeg *.gif *.ico *.svg *.woff *.woff2 *.ttf *.eot *.map

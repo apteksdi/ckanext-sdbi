@@ -13,8 +13,9 @@
 {% set tanggap_active = request.path.startswith('/tanggap-darurat') %}
 {% if tanggap_rooms or tanggap_sysadmin %}
 <li class="dropdown{% if tanggap_active %} active{% endif %}">
+  {# No title= (avoids floating duplicate label); one caret only — hide BS/FA ::after in CSS #}
   <a href="/tanggap-darurat" class="site-header__menu-item menu-item dropdown-toggle" data-toggle="dropdown"
-    role="button" aria-haspopup="true" aria-expanded="false" title="Tanggap Darurat">
+    role="button" aria-haspopup="true" aria-expanded="false" aria-label="Tanggap Darurat">
     Tanggap Darurat <span class="caret"></span>
   </a>
   <ul class="dropdown-menu">
@@ -35,12 +36,4 @@
     title="Tanggap Darurat">Tanggap Darurat</a></li>
 {% endif %}
 <li><a href="/bantuan" class="site-header__menu-item menu-item" title="Bantuan">Bantuan</a></li>
-
-{% if c.userobj and c.userobj.sysadmin %}
-<li><a href="/google-forms" class="site-header__menu-item menu-item" title="Google Forms">Google Forms</a></li>
-{% endif %}
-{% if c.user %}
-<li><a href="/analytics" class="site-header__menu-item menu-item" title="Analytics">Analytics</a></li>
-{% endif %}
-<li><a href="{{ h.url_for('home.about') }}" class="site-header__menu-item menu-item" title="Tentang">Tentang</a></li>
 {% endblock %}

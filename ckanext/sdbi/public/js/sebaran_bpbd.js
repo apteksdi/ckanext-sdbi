@@ -9,8 +9,10 @@
   var root = document.querySelector('.sebaran-bpbd');
   var map;
   var bpbdFeatures = [];
+  var bpbdIndex = null;
   var activePopup = null;
   var highlightTimer = null;
+  var BPBD_LAYER_IDS = ['bpbd-clusters', 'bpbd-cluster-count', 'bpbd-points'];
 
   function fallbackEscapeHtml(value) {
     if (value == null || value === '') {
@@ -107,19 +109,19 @@
       .addTo(map);
     map.flyTo({ center: coords, zoom: Math.max(map.getZoom(), 9.5) });
     try {
-      if (map.getLayer('bpbd-points') && map.getLayoutProperty('bpbd-points', 'icon-image')) {
-        map.setLayoutProperty('bpbd-points', 'icon-size', 1.25);
+      if (map.getLayer('bpbd-points')) {
+        map.setPaintProperty('bpbd-points', 'circle-stroke-width', 3);
         if (highlightTimer) {
           window.clearTimeout(highlightTimer);
         }
         highlightTimer = window.setTimeout(function () {
           if (map.getLayer('bpbd-points')) {
-            map.setLayoutProperty('bpbd-points', 'icon-size', 1);
+            map.setPaintProperty('bpbd-points', 'circle-stroke-width', 2);
           }
         }, 2000);
       }
     } catch (e) {
-      // circle fallback has no icon-size
+      // ignore paint highlight failures
     }
   }
 
@@ -389,21 +391,63 @@
     }
   }
 
-  function syncBpbdPointFilter() {
-    var showPoints = !!(document.getElementById('layer-bpbd') || {}).checked;
-    var showProv = !!(document.getElementById('layer-provinsi') || {}).checked;
-    var showKab = !!(document.getElementById('layer-kabupaten') || {}).checked;
-    var visible = showPoints && (showProv || showKab);
-
-    setVisibility('bpbd-points', visible);
-
-    if (!map.getSource('bpbd')) {
+  function rebuildBpbdIndex() {
+    if (typeof Supercluster === 'undefined') {
+      bpbdIndex = null;
       return;
     }
-    map.getSource('bpbd').setData(filteredBpbdGeojson());
+    bpbdIndex = new Supercluster({
+      radius: 60,
+      maxZoom: 14
+    });
+    bpbdIndex.load(visibleBpbdFeatures());
+  }
+
+  function updateBpbdClusters() {
+    if (!map || !map.getSource('bpbd')) {
+      return;
+    }
+    if (!bpbdIndex) {
+      map.getSource('bpbd').setData(filteredBpbdGeojson());
+      return;
+    }
+    var bounds = map.getBounds();
+    var bbox = [
+      bounds.getWest(),
+      bounds.getSouth(),
+      bounds.getEast(),
+      bounds.getNorth()
+    ];
+    var zoom = Math.max(0, Math.floor(map.getZoom()));
+    map.getSource('bpbd').setData({
+      type: 'FeatureCollection',
+      features: bpbdIndex.getClusters(bbox, zoom)
+    });
+  }
+
+  function setBpbdLayersVisible(visible) {
+    var value = visible ? 'visible' : 'none';
+    BPBD_LAYER_IDS.forEach(function (id) {
+      if (map.getLayer(id)) {
+        map.setLayoutProperty(id, 'visibility', value);
+      }
+    });
+  }
+
+  function syncBpbdPointFilter() {
+    if (!map || !map.getSource('bpbd')) {
+      return;
+    }
+    rebuildBpbdIndex();
+    updateBpbdClusters();
+    var showPoints = !!(document.getElementById('layer-bpbd') || {}).checked;
+    setBpbdLayersVisible(showPoints);
   }
 
   function beforePoints() {
+    if (map.getLayer('bpbd-clusters')) {
+      return 'bpbd-clusters';
+    }
     if (map.getLayer('bpbd-points')) {
       return 'bpbd-points';
     }
@@ -413,16 +457,54 @@
   var bpbdEventsBound = false;
 
   function addBpbdLayers() {
-    // Native MapLibre GeoJSON clustering drops most of this dataset in 3.6.2
-    // (tiles expose only a handful of unclustered points, zero clusters).
-    // Keep an unclustered circle layer so markers stay visible.
+    rebuildBpbdIndex();
+
+    var empty = { type: 'FeatureCollection', features: [] };
     if (!map.getSource('bpbd')) {
       map.addSource('bpbd', {
         type: 'geojson',
-        data: filteredBpbdGeojson()
+        data: empty
       });
-    } else {
-      map.getSource('bpbd').setData(filteredBpbdGeojson());
+    }
+
+    if (!map.getLayer('bpbd-clusters')) {
+      map.addLayer({
+        id: 'bpbd-clusters',
+        type: 'circle',
+        source: 'bpbd',
+        filter: ['has', 'point_count'],
+        paint: {
+          'circle-color': '#d93025',
+          'circle-radius': [
+            'step',
+            ['get', 'point_count'],
+            16,
+            10, 20,
+            50, 26,
+            100, 32
+          ],
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#ffffff'
+        }
+      });
+    }
+
+    if (!map.getLayer('bpbd-cluster-count')) {
+      map.addLayer({
+        id: 'bpbd-cluster-count',
+        type: 'symbol',
+        source: 'bpbd',
+        filter: ['has', 'point_count'],
+        layout: {
+          'text-field': '{point_count_abbreviated}',
+          'text-size': 12,
+          'text-font': ['Noto Sans Bold'],
+          'text-allow-overlap': true
+        },
+        paint: {
+          'text-color': '#ffffff'
+        }
+      });
     }
 
     if (!map.getLayer('bpbd-points')) {
@@ -430,12 +512,13 @@
         id: 'bpbd-points',
         type: 'circle',
         source: 'bpbd',
+        filter: ['!', ['has', 'point_count']],
         paint: {
           'circle-radius': [
             'interpolate', ['linear'], ['zoom'],
-            3, 7,
-            6, 9,
-            10, 11
+            4, 3,
+            8, 5,
+            12, 8
           ],
           'circle-color': '#d93025',
           'circle-stroke-width': 2,
@@ -451,15 +534,33 @@
     }
     bpbdEventsBound = true;
 
+    map.on('moveend', updateBpbdClusters);
+    map.on('zoomend', updateBpbdClusters);
+
+    map.on('click', 'bpbd-clusters', function (e) {
+      var feature = e.features && e.features[0];
+      if (!feature || !bpbdIndex) {
+        return;
+      }
+      var clusterId = feature.properties.cluster_id;
+      var expansionZoom = bpbdIndex.getClusterExpansionZoom(clusterId);
+      map.flyTo({
+        center: feature.geometry.coordinates,
+        zoom: expansionZoom
+      });
+    });
+
     map.on('click', 'bpbd-points', function (e) {
       openFeaturePopup(e.features[0]);
     });
 
-    map.on('mouseenter', 'bpbd-points', function () {
-      map.getCanvas().style.cursor = 'pointer';
-    });
-    map.on('mouseleave', 'bpbd-points', function () {
-      map.getCanvas().style.cursor = '';
+    ['bpbd-clusters', 'bpbd-points'].forEach(function (layerId) {
+      map.on('mouseenter', layerId, function () {
+        map.getCanvas().style.cursor = 'pointer';
+      });
+      map.on('mouseleave', layerId, function () {
+        map.getCanvas().style.cursor = '';
+      });
     });
   }
 

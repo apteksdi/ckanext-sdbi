@@ -1,0 +1,171 @@
+{#-
+  Polished Data API modal for CKAN 2.10 (Bootstrap 5).
+  Core snippet looks broken under theme CSS (nested button chrome,
+  uneven Python header). Keep BS5 accordion semantics; tidy markup/CSS.
+  Leading whitespace must stay trimmed — jQuery(html).modal() breaks on Text nodes.
+-#}
+{%- set resource_id = h.sanitize_id(resource_id) -%}
+{%- set search_url = h.url_for('api.action', ver=3, logic_function='datastore_search', resource_id=resource_id, limit=5, qualified=True) -%}
+{%- set sql_example_url = h.url_for('api.action', ver=3, logic_function='datastore_search_sql', qualified=True) + '?sql=SELECT * from "' + resource_id + '" WHERE title LIKE \'jones\'' -%}
+<div {% if not embedded %}class="modal fade sdbi-api-info-modal"{% else %}class="sdbi-api-info-modal"{% endif %} tabindex="-1" aria-labelledby="sdbi-api-info-title" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title" id="sdbi-api-info-title">{{ _('CKAN Data API') }}</h3>
+      </div>
+      <div {% if not embedded %}class="modal-body"{% endif %}>
+        <p class="sdbi-api-info-lead">
+          <strong>{{ _('Access resource data via a web API with powerful query support') }}</strong>.
+          {% trans %}
+          Further information in the <a href="https://docs.ckan.org/en/latest/maintaining/datastore.html" target="_blank" rel="noopener noreferrer">main CKAN Data API and DataStore documentation</a>.
+          {% endtrans %}
+        </p>
+
+        <div class="accordion sdbi-api-accordion" id="sdbi-api-accordion">
+
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="sdbi-api-heading-endpoints">
+              <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#sdbi-api-collapse-endpoints" aria-expanded="true" aria-controls="sdbi-api-collapse-endpoints">
+                {{ _('Endpoints') }}
+              </button>
+            </h2>
+            <div id="sdbi-api-collapse-endpoints" class="accordion-collapse collapse show" aria-labelledby="sdbi-api-heading-endpoints" data-bs-parent="#sdbi-api-accordion">
+              <div class="accordion-body">
+                <p>{{ _('The Data API can be accessed via the following actions of the CKAN action API.') }}</p>
+                <div class="table-responsive">
+                  <table class="table table-striped table-bordered sdbi-api-table">
+                    <tbody>
+                      <tr>
+                        <th scope="row">{{ _('Create') }}</th>
+                        <td><code>{{ h.url_for('api.action', ver=3, logic_function='datastore_create', qualified=True) }}</code></td>
+                      </tr>
+                      <tr>
+                        <th scope="row">{{ _('Update / Insert') }}</th>
+                        <td><code>{{ h.url_for('api.action', ver=3, logic_function='datastore_upsert', qualified=True) }}</code></td>
+                      </tr>
+                      <tr>
+                        <th scope="row">{{ _('Query') }}</th>
+                        <td><code>{{ h.url_for('api.action', ver=3, logic_function='datastore_search', qualified=True) }}</code></td>
+                      </tr>
+                      {% if h.datastore_search_sql_enabled() %}
+                      <tr>
+                        <th scope="row">{{ _('Query (via SQL)') }}</th>
+                        <td><code>{{ h.url_for('api.action', ver=3, logic_function='datastore_search_sql', qualified=True) }}</code></td>
+                      </tr>
+                      {% endif %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="sdbi-api-heading-querying">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sdbi-api-collapse-querying" aria-expanded="false" aria-controls="sdbi-api-collapse-querying">
+                {{ _('Querying') }}
+              </button>
+            </h2>
+            <div id="sdbi-api-collapse-querying" class="accordion-collapse collapse" aria-labelledby="sdbi-api-heading-querying" data-bs-parent="#sdbi-api-accordion">
+              <div class="accordion-body">
+                <p><strong>{{ _('Query example (first 5 results)') }}</strong></p>
+                <p><code><a href="{{ search_url }}" target="_blank" rel="noopener noreferrer">{{ search_url }}</a></code></p>
+                <p><strong>{{ _('Query example (results containing \'jones\')') }}</strong></p>
+                <p><code><a href="{{ h.url_for('api.action', ver=3, logic_function='datastore_search', resource_id=resource_id, q='jones', qualified=True) }}" target="_blank" rel="noopener noreferrer">{{ h.url_for('api.action', ver=3, logic_function='datastore_search', resource_id=resource_id, q='jones', qualified=True) }}</a></code></p>
+                {% if h.datastore_search_sql_enabled() %}
+                <p><strong>{{ _('Query example (via SQL statement)') }}</strong></p>
+                <p><code><a href="{{ sql_example_url }}" target="_blank" rel="noopener noreferrer">{{ sql_example_url }}</a></code></p>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="sdbi-api-heading-curl">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sdbi-api-collapse-curl" aria-expanded="false" aria-controls="sdbi-api-collapse-curl">
+                {{ _('Example: curl') }}
+              </button>
+            </h2>
+            <div id="sdbi-api-collapse-curl" class="accordion-collapse collapse" aria-labelledby="sdbi-api-heading-curl" data-bs-parent="#sdbi-api-accordion">
+              <div class="accordion-body">
+<pre class="sdbi-api-code">curl --location '{{ search_url }}'</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="sdbi-api-heading-node">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sdbi-api-collapse-node" aria-expanded="false" aria-controls="sdbi-api-collapse-node">
+                {{ _('Example: Node.js') }}
+              </button>
+            </h2>
+            <div id="sdbi-api-collapse-node" class="accordion-collapse collapse" aria-labelledby="sdbi-api-heading-node" data-bs-parent="#sdbi-api-accordion">
+              <div class="accordion-body">
+<pre class="sdbi-api-code">const url = '{{ search_url }}';
+
+const res = await fetch(url);
+const data = await res.json();
+console.log(data.result.total, data.result.records);</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="sdbi-api-heading-py">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sdbi-api-collapse-py" aria-expanded="false" aria-controls="sdbi-api-collapse-py">
+                {{ _('Example: Python') }}
+              </button>
+            </h2>
+            <div id="sdbi-api-collapse-py" class="accordion-collapse collapse" aria-labelledby="sdbi-api-heading-py" data-bs-parent="#sdbi-api-accordion">
+              <div class="accordion-body">
+<pre class="sdbi-api-code">import json
+import urllib.request
+
+url = '{{ search_url }}'
+with urllib.request.urlopen(url) as resp:
+    data = json.load(resp)
+print(data['result']['total'], data['result']['records'])</pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="sdbi-api-heading-go">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sdbi-api-collapse-go" aria-expanded="false" aria-controls="sdbi-api-collapse-go">
+                {{ _('Example: Go') }}
+              </button>
+            </h2>
+            <div id="sdbi-api-collapse-go" class="accordion-collapse collapse" aria-labelledby="sdbi-api-heading-go" data-bs-parent="#sdbi-api-accordion">
+              <div class="accordion-body">
+<pre class="sdbi-api-code">package main
+
+import (
+        "encoding/json"
+        "fmt"
+        "net/http"
+)
+
+func main() {
+        resp, err := http.Get("{{ search_url }}")
+        if err != nil {
+                panic(err)
+        }
+        defer resp.Body.Close()
+
+        var data map[string]any
+        if err := json.NewDecoder(resp.Body).Decode(&amp;data); err != nil {
+                panic(err)
+        }
+        result := data["result"].(map[string]any)
+        fmt.Println(result["total"], result["records"])
+}</pre>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+

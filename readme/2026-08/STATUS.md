@@ -1,15 +1,19 @@
 # Laporan status — Upgrade Portal Data BNPB
 
-Laporan kondisi terhadap [`PRD.md`](PRD.md). Cara implementasi dan cutover: [`HOW-TO-IMPLEMENT.md`](HOW-TO-IMPLEMENT.md).
+**Dokumen paparan gabungan (status + screenshot + how-to + justifikasi embed):** [`DOC-2026-09-29.md`](DOC-2026-09-29.md).
+
+Laporan kondisi terhadap [`PRD.md`](PRD.md). Cara implementasi detail: [`HOW-TO-IMPLEMENT.md`](HOW-TO-IMPLEMENT.md).
 
 | Field | Nilai |
 | --- | --- |
-| Tanggal laporan | 9 September 2026 |
+| Tanggal laporan | 29 September 2026 |
 | Branch | `ckanext-sdbi` dan `ckan-compose`: `upgrade-ckan-security-etc` |
 | URL lokal | http://localhost:8080 |
 | Produksi | https://data.bnpb.go.id (masih CKAN 2.9.11) |
 
-Commit harvest: sdbi `20687d5`, compose `37c41b2`. Settings FAQ/kamar: sdbi `239cc06`, compose `de479a7`. Navbar Tanggap Darurat: sdbi `74a71d5`. Sebaran layar penuh: sdbi `117caeb`.
+Update ringkas sejak laporan 9 Sep: titik BPBD Kab/Kota + Provinsi sudah di Postgres (`sdbi_bpbd`) dan tampil di `/sebaran-bpbd`; popup website; impor CSV kontak resmi; clustering Supercluster. Commit terkait: sdbi `faec4d2` / `c962097` / `2ed84c2` / `6199c61`, compose `65d2a3b`.
+
+**Hasil visual (screenshot):** lihat [`DOC-2026-09-29.md`](DOC-2026-09-29.md) §3 dan folder [`screenshots/`](screenshots/).
 
 ---
 
@@ -27,34 +31,46 @@ Commit harvest: sdbi `20687d5`, compose `37c41b2`. Settings FAQ/kamar: sdbi `239
 | ID | Persyaratan | Lokal | Produksi | Bukti / celah |
 | --- | --- | --- | --- | --- |
 | B0 | `CKAN__DATASTORE__SQLSEARCH__ENABLED=false` | **Selesai** | **Selesai** | Flag env. Tetap false setelah 2.10. |
-| B2 | Auth SQL default tolak (`sdbi` terakhir) | **Selesai** | Belum di-deploy | `ckanext/sdbi/auth.py`; IAuthFunctions berantai di 2.10 |
+| B2 | Auth SQL default tolak (`sdbi` terakhir) | **Selesai** | **Selesai** | `ckanext/sdbi/auth.py`; `sdbi` terakhir di plugins produksi |
 | B1 | CKAN 2.10.11 | **Selesai** | **Belum dimulai** | Lokal `ckan --version` 2.10.11 |
 | Fase 0 | 2FA TOTP | **Selesai** | Perlu rebuild image + `security migrate` | security 4.1.1, Redis DB 2, QR di login pertama |
-| Fase 1 | Harvester JSON REST | **Selesai** | Perlu image produksi + worker yang sama | Tipe **JSON REST**; sumber `jakarta1` sudah import `sdbi-kerusakan-pada-…` |
-| Fase 2 | `/sebaran-bpbd` | **Selesai** | Belum di-deploy | Peta layar penuh MapLibre; unduh/unggah CSV |
+| Fase 1 | Harvester JSON REST | **Selesai*** | Perlu image produksi + worker yang sama | Tipe **JSON REST**; *lihat catatan di bawah |
+| Fase 2 | `/sebaran-bpbd` | **Selesai** | Belum di-deploy | Peta MapLibre; Kab/Kota + Provinsi di peta; cluster Supercluster |
 | Fase 3 | `/bantuan` | **Selesai** | Belum di-deploy | Chip + cari; JSON `sdbi_settings.faq` (tanpa YAML) |
 | Fase 4 | Kamar `/tanggap-darurat` | **Selesai** | Perlu cutover 2.10 | Dropdown **navbar**; JSON `tanggap_rooms`; `/kelola` sysadmin; iframe HTTPS |
 
+### Catatan Fase 1 — Harvester JSON REST
+
+- Bisa impor metadata dataset dari API JSON REST **bukan** CKAN Action API (contoh gateway kota).
+- **Batasan:** impor mengasumsikan bentuk URL / payload yang **selaras dengan pola URL CKAN** (satu endpoint detail, atau daftar + template detail seperti yang didokumentasikan di PRD). Bukan harvester generik untuk sembarang skema JSON.
+- Hasil harvest = paket katalog + resource tautan JSON ke API asal; **tidak** menyalin `data[]` ke DataStore.
+
+### Catatan Fase 2 — `/sebaran-bpbd`
+
+- Titik BPBD **Kabupaten/Kota** dan **Provinsi** sudah di `sdbi_bpbd` dan tampil di peta (~477 titik berkoordinat: ~443 kab + ~34 prov).
+- Sumber Provinsi: CSV kontak resmi (~38 baris; 4 tanpa koordinat sehingga tidak di-plot).
+- Marker clustering Supercluster: zoom-out grup berangka, zoom-in titik individual.
+- Popup menampilkan telepon, email, website (jika ada), SDM, Maps.
+- GeoJSON batas Kabupaten masih interim (boleh kosong / disederhanakan sesuai PRD rilis pertama).
+- Skill impor ulang: `.cursor/skills/peta-sebaran` (`/peta-sebaran`).
+
 ---
 
-## 3. Verifikasi lokal (9 Sep 2026)
+## 3. Verifikasi lokal (29 Sep 2026)
 
 | Pemeriksaan | Hasil |
 | --- | --- |
 | Beranda, `/dataset`, detail dataset | 200 |
 | `status_show` | 2.10.11; plugin termasuk `activity`, `sdbi_json_harvester`; `sdbi` terakhir |
-| `/sebaran-bpbd` | 200, peta layar penuh, sakelar layer, unduh CSV |
-| `/bantuan` | 200; chip kategori; cari; tipe 16px |
+| `/sebaran-bpbd` | 200; peta layar penuh; Kab + Provinsi di peta (~477 titik); cluster zoom; unduh CSV |
+| `/sebaran-bpbd` popup | Telepon / email / website (bila ada) |
+| `/bantuan` | 200; chip kategori; cari |
 | `/bantuan/kelola` | 403 anonim; sysadmin menyimpan JSON `faq` |
-| `/tanggap-darurat` | 200, kamar dari dropdown navbar (bukan kontrol di halaman) |
+| `/tanggap-darurat` | 200, kamar dari dropdown navbar |
 | `/tanggap-darurat/kelola` | 403 anonim; iframe harus HTTPS |
-| `/tanggap-darurat?jenis=banjir` | Teks kamar kosong |
-| `/tanggap-darurat/panduan` | 403 untuk anonim |
-| `/gempantt2026` | 200 lewat URL; tidak di navbar |
-| `/harvest` | Tipe JSON REST; form tidak auto-pilih JSON REST |
-| JSON REST live (Jakarta) | Gather/fetch/import **berhasil** dari Docker setelah worker memuat plugin; paket di org `pvmbg` |
+| `/harvest` | Tipe JSON REST tersedia; batasan format URL seperti catatan Fase 1 |
 | `datastore_search_sql` | Tidak terdaftar / tertahan |
-| Healthcheck | `ckan` healthy (`wget`); worker harvest tanpa probe HTTP |
+| Healthcheck | `ckan` healthy; worker harvest tanpa probe HTTP |
 
 Plugin produksi 2.9 yang **belum** di lokal: `dcat*`, `structured_data`, `resourceauthorizer` (sengaja).
 
@@ -65,14 +81,15 @@ Plugin produksi 2.9 yang **belum** di lokal: `dcat*`, `structured_data`, `resour
 | Item | Dampak | Catatan |
 | --- | --- | --- |
 | Produksi masih 2.9.11 | CVE sampai cutover B1 | B0 adalah kunci produksi saat ini |
-| Image produksi belum di-bake 2.10 | Worker/web bisa beda plugin | Lokal sudah: `image: ckan-compose-ckan` + `CKAN__PLUGINS` di start worker |
+| Image produksi belum di-bake 2.10 | Worker/web bisa beda plugin | Lokal sudah: image compose + `CKAN__PLUGINS` di start worker |
+| **4 BPBD Provinsi tanpa koordinat** | Minor: 4 baris tidak di-plot | Provinsi berkoordinat sudah di peta; lengkapi lat/lng via SQL bila sumber resmi ada |
+| **JSON REST bukan harvester generik** | Hanya API dengan pola URL mirip CKAN | Integrasi portal kota lain perlu sesuaikan config / template URL |
 | Harvest MANUAL tanpa Reharvest | Sumber ada, `job_count=0`, tidak ada dataset | Harus Reharvest atau `ckan harvester job` |
 | Harvest hanya metadata + tautan JSON | Tabel `data[]` tidak di DataStore | Sesuai Fase 1; salin ke DataStore belum diminta |
-| Slug contoh di config | Paket kosong `sdbi-another-jakarta-slug` | Hapus dari Config; hapus dataset dummy |
-| GeoJSON Kabupaten kosong | Layer kabupaten tanpa poligon | Tambah ADM2 yang disederhanakan nanti |
+| GeoJSON Kabupaten kosong / interim | Layer kabupaten terbatas | Tambah ADM2 yang disederhanakan nanti |
 | Kamar Tanggap kosong | Sesuai desain | Isi iframe di `/tanggap-darurat/kelola` |
 | API key produksi masih yang lama | Token lolos 2FA | Cabut semua key 2.9 sekarang; putar DataPusher; cabut JWT lagi setelah 2.10 |
-| Harvest katalog kota tanpa saring | Dataset tidak pantas / data pribadi di portal | ≈372 paket harvested; jeda sumber Integrasi Kota Malang; hapus BPJS/penduduk dll. |
+| Harvest katalog kota tanpa saring | Dataset tidak pantas / data pribadi di portal | Jeda sumber katalog penuh; hapus paket non-bencana |
 | Fase 0–4 belum di produksi | Celah fitur | Kirim bersama image 2.10 |
 | DCAT produksi tidak di 2.10 | RDF/JSON-LD katalog | Bukan pengganti `sdbi_json_harvester` |
 
@@ -87,5 +104,7 @@ Plugin produksi 2.9 yang **belum** di lokal: `dcat*`, `structured_data`, `resour
 5. Jendela maintenance produksi: `db upgrade`, Solr 9, `security migrate`, reindex
 6. Recreate web **dan** worker harvest dari image yang sama; cabut JWT 2.10
 7. Jangan mengaktifkan kembali SQL search
+8. **(Lokal / data, opsional)** Lengkapi 4 BPBD Provinsi tanpa koordinat bila lat/lng resmi tersedia
+9. **(Lokal / harvest)** Dokumentasikan contoh URL yang didukung JSON REST saat onboarding sumber baru
 
-Urutan: B0 (selesai) → B2 di tree (selesai) → B1 staging/produksi → Fase 0/1 di image web+worker → Fase 2–4 ikut image yang sama.
+Urutan: B0 (selesai) → B2 produksi (selesai) → B1 staging/produksi → Fase 0/1 di image web+worker → Fase 2–4 ikut image yang sama.

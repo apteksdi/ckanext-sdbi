@@ -36,19 +36,26 @@ def _pretty(data):
     return json.dumps(data, indent=2, ensure_ascii=False)
 
 
+def _map_category(category):
+    return {
+        'id': category.get('id'),
+        'title': category.get('title'),
+        'entries': list(category.get('questions') or []),
+        'children': [
+            _map_category(child) for child in (category.get('children') or [])
+        ],
+    }
+
+
 @bantuan_blueprint.route('/bantuan', methods=['GET'])
 def index():
     try:
         faq = _faq()
     except FaqError:
         faq = {'categories': []}
-    faq_categories = []
-    for category in faq.get('categories') or []:
-        faq_categories.append({
-            'id': category.get('id'),
-            'title': category.get('title'),
-            'entries': list(category.get('questions') or []),
-        })
+    faq_categories = [
+        _map_category(category) for category in (faq.get('categories') or [])
+    ]
     return toolkit.render(
         'bantuan/index.html',
         extra_vars={
