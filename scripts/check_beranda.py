@@ -33,10 +33,11 @@ def main():
             fails.append('/ missing: %s' % needle)
     if not re.search(r'<script[^>]+src="[^"]*jquery[^"]*"', body, re.I):
         fails.append('/ missing jQuery script tag')
-    if 'tracking' not in body:
+    if 'tracking.js' not in body:
         fails.append('/ missing tracking script')
-    if 'site-header__logo-lockup' in body:
-        fails.append('/ contains global header (site-header__logo-lockup)')
+    for needle in ('site-header__logo-lockup', 'surveyModal'):
+        if needle not in body:
+            fails.append('/ missing global header/footer marker: %s' % needle)
 
     for path in ['/dataset', '/organization', '/bantuan', '/tanggap-darurat']:
         st, body = fetch(base + path)

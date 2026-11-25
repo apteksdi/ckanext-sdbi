@@ -1,7 +1,8 @@
 {% from 'home/beranda/_macros.html' import dot_number %}
 {% set total_dataset = h.sdbi_theme_dataset_count() or 0 %}
 {% set instansi = (stats.get('kementerian_lembaga_terhubung') or 0) + (stats.get('ngo_terhubung') or 0) %}
-<section class="sdbi-home-hero" style="background-image: linear-gradient(90deg, rgba(8,48,92,.92) 0%, rgba(8,48,92,.7) 45%, rgba(8,48,92,0) 100%), url('/base/images/Dokumentasi-Erupsi-semeru.JPG');">
+<section class="sdbi-home-hero">
+  <img class="sdbi-home-hero-map" src="{{ h.url_for_static('/img/peta-indonesia-hero.svg') }}" alt="" aria-hidden="true">
   <div class="sdbi-home-container">
     <div class="sdbi-home-hero-content">
       <h1 class="sdbi-home-hero-title">Satu Data untuk Indonesia Tangguh Bencana</h1>

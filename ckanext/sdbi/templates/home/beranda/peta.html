@@ -4,7 +4,10 @@
     <div class="sdbi-home-peta-main">
       <h2 class="sdbi-home-section-title">Peta Sebaran Bencana di Indonesia</h2>
       <p class="sdbi-home-section-desc">Pantau kejadian bencana terkini di seluruh wilayah Indonesia.</p>
-      <iframe class="sdbi-home-peta-frame" src="{{ peta_url }}" title="Peta Sebaran Bencana di Indonesia" loading="lazy"></iframe>
+      <a class="sdbi-home-peta-map" href="{{ peta_url }}" target="_blank" rel="noopener" aria-label="Buka peta sebaran bencana interaktif">
+        <img src="{{ h.url_for_static('/img/peta-indonesia.svg') }}" alt="Peta wilayah Indonesia" loading="lazy">
+        <span class="sdbi-home-peta-map-hint"><i class="fa fa-mouse-pointer" aria-hidden="true"></i> Klik untuk membuka peta interaktif</span>
+      </a>
       <a class="sdbi-home-btn sdbi-home-btn-blue" href="{{ peta_url }}" target="_blank" rel="noopener">Buka Peta Lengkap <i class="fa fa-external-link-alt" aria-hidden="true"></i></a>
     </div>
     <aside class="sdbi-home-tanggap">
