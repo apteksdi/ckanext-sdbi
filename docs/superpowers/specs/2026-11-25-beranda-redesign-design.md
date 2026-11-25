@@ -69,6 +69,7 @@ Font Awesome yang sudah dimuat.
   `page.html` dan hanya meng-override `{% block content %}`. Partial header/footer beranda dan
   `beranda.js` dihapus. Script, tracking dan popup survey datang dari `page.html`/`footer.html`.
 - Hero: foto diganti gradien biru + siluet peta Indonesia (`public/img/peta-indonesia-hero.svg`).
-- Kartu peta: iframe diganti gambar peta Indonesia (`public/img/peta-indonesia.svg`) yang bila
-  diklik membuka `https://gis.bnpb.go.id/dev/map`. Kedua SVG dibuat dari
+- Kartu peta: iframe diganti screenshot peta kejadian bencana per provinsi
+  (`public/img/peta-sebaran-bencana.jpg`, dari `revamp/BNPB LOGO Indonesia.png`) yang bila
+  diklik membuka `https://gis.bnpb.go.id/dev/map`. SVG hero dibuat dari
   `public/data/boundaries/provinsi.geojson` (32 provinsi, disederhanakan), tanpa titik bencana.
