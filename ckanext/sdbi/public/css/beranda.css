@@ -1,0 +1,19 @@
+/* Beranda SDBI - semua selector di-scope di bawah .sdbi-home */
+.sdbi-home {
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  line-height: 1.5;
+}
+.sdbi-home *,
+.sdbi-home *::before,
+.sdbi-home *::after {
+  box-sizing: border-box;
+}
+.sdbi-home a {
+  color: inherit;
+  text-decoration: none;
+}
+.sdbi-home .sdbi-home-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}

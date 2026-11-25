@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block subtitle %}Beranda{% endblock %}
+
+{% block custom_styles %}
+  {{ super() }}
+  <link rel="stylesheet" href="/base/vendor/fontawesome-free/css/all.css">
+  <link rel="stylesheet" href="/css/beranda.css?v=1">
+{% endblock %}
+
+{% block page %}
+<div class="sdbi-home">
+  {% include 'home/beranda/header.html' %}
+  <main class="sdbi-home-main">
+    {% include 'home/beranda/hero.html' %}
+    {% include 'home/beranda/peta.html' %}
+    {% include 'home/beranda/kategori.html' %}
+    {% include 'home/beranda/konten.html' %}
+    {% include 'home/beranda/ekosistem.html' %}
+  </main>
+  {% include 'home/beranda/footer.html' %}
+</div>
+<script src="/js/beranda.js?v=1" defer></script>
+{% endblock %}
