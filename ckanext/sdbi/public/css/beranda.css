@@ -379,3 +379,71 @@
   .sdbi-home .sdbi-home-stat { padding: 16px; }
   .sdbi-home .sdbi-home-stat-value { font-size: 20px; }
 }
+
+/* ---- Kategori, Dataset Terbaru, Layanan ---- */
+.sdbi-home .sdbi-home-kategori { padding: 40px 0 24px; }
+.sdbi-home .sdbi-home-section-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+.sdbi-home .sdbi-home-section-head .sdbi-home-section-title { margin: 0; }
+.sdbi-home .sdbi-home-title-accent { padding-left: 12px; border-left: 4px solid #f58220; }
+.sdbi-home .sdbi-home-more { color: #0b4a8b; font-weight: 600; text-decoration: none; white-space: nowrap; }
+.sdbi-home .sdbi-home-more:hover { color: #08305c; text-decoration: underline; }
+.sdbi-home .sdbi-home-kategori-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
+.sdbi-home .sdbi-home-kategori-card {
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+  padding: 22px 12px; border-radius: 12px; text-align: center;
+  color: #08305c; text-decoration: none; font-weight: 600; transition: transform .2s, box-shadow .2s;
+}
+.sdbi-home .sdbi-home-kategori-card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(8, 48, 92, .12); color: #08305c; }
+.sdbi-home .sdbi-home-kategori-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 52px; height: 52px; border-radius: 50%; background: rgba(255, 255, 255, .75); font-size: 22px;
+}
+.sdbi-home .sdbi-home-tone-blue { background: #e3effb; }
+.sdbi-home .sdbi-home-tone-pink { background: #fde7ec; }
+.sdbi-home .sdbi-home-tone-green { background: #e2f5e9; }
+.sdbi-home .sdbi-home-tone-orange { background: #fdeedc; }
+.sdbi-home .sdbi-home-tone-purple { background: #eee6f9; }
+.sdbi-home .sdbi-home-tone-gray { background: #eceff3; }
+
+.sdbi-home .sdbi-home-konten { padding: 24px 0 56px; }
+.sdbi-home .sdbi-home-konten-grid { display: grid; grid-template-columns: 45fr 55fr; gap: 32px; align-items: start; }
+.sdbi-home .sdbi-home-konten-grid > * { min-width: 0; }
+.sdbi-home .sdbi-home-latest-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.sdbi-home .sdbi-home-latest-item {
+  display: flex; gap: 14px; padding: 12px; background: #fff;
+  border: 1px solid #e5e9f0; border-radius: 10px;
+}
+.sdbi-home .sdbi-home-latest-thumb { width: 96px; height: 80px; object-fit: cover; border-radius: 8px; background: #eef2f7; flex-shrink: 0; }
+.sdbi-home .sdbi-home-latest-body { min-width: 0; }
+.sdbi-home .sdbi-home-latest-title { display: block; margin-top: 4px; color: #08305c; font-weight: 700; text-decoration: none; }
+.sdbi-home .sdbi-home-latest-title:hover { color: #0b4a8b; text-decoration: underline; }
+.sdbi-home .sdbi-home-latest-org { color: #5b6b7f; font-size: 13px; margin-top: 2px; }
+.sdbi-home .sdbi-home-latest-meta { display: flex; gap: 14px; margin-top: 6px; color: #5b6b7f; font-size: 13px; }
+.sdbi-home .sdbi-home-empty { color: #5b6b7f; }
+
+.sdbi-home .sdbi-home-layanan-track {
+  display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 32px) / 3);
+  gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 8px;
+}
+.sdbi-home .sdbi-home-layanan-card {
+  scroll-snap-align: start; background: #fff; border: 1px solid #e5e9f0; border-radius: 10px;
+  overflow: hidden; color: inherit; text-decoration: none; display: flex; flex-direction: column;
+  box-shadow: 0 4px 16px rgba(8, 48, 92, .08);
+}
+.sdbi-home .sdbi-home-layanan-img { width: 100%; height: 130px; object-fit: cover; display: block; }
+.sdbi-home .sdbi-home-layanan-body { padding: 12px 14px 14px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.sdbi-home .sdbi-home-layanan-title { margin: 0; font-size: 15px; font-weight: 700; color: #08305c; }
+.sdbi-home .sdbi-home-layanan-desc {
+  margin: 0; font-size: 13px; color: #5b6b7f;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.sdbi-home .sdbi-home-layanan-cat { margin-top: auto; font-size: 12px; font-weight: 600; color: #f58220; }
+
+@media (max-width: 991px) {
+  .sdbi-home .sdbi-home-kategori-grid { grid-template-columns: repeat(3, 1fr); }
+  .sdbi-home .sdbi-home-konten-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 767px) {
+  .sdbi-home .sdbi-home-kategori-grid { grid-template-columns: repeat(2, 1fr); }
+  .sdbi-home .sdbi-home-layanan-track { grid-auto-columns: 78%; }
+}

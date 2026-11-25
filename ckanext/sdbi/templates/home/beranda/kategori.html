@@ -1,0 +1,22 @@
+<section id="kategori" class="sdbi-home-kategori">
+  <div class="sdbi-home-container">
+    <div class="sdbi-home-section-head">
+      <h2 class="sdbi-home-section-title sdbi-home-title-accent">Kategori Dataset</h2>
+      <a class="sdbi-home-more" href="{{ h.url_for('dataset.search') }}">Lihat Semua <i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+    </div>
+    <div class="sdbi-home-kategori-grid">
+      {% for label, url, icon, tone in [
+        ('Kejadian Bencana', '/dataset/?q=kejadian', 'fa-wave-square', 'blue'),
+        ('Dampak Bencana', '/dataset/?q=dampak', 'fa-users', 'pink'),
+        ('Mitigasi & Kesiapsiagaan', '/dataset/?fase=prabencana', 'fa-shield-alt', 'green'),
+        ('Penanganan Darurat', '/dataset/?fase=saatbencana', 'fa-truck', 'orange'),
+        ('Pemulihan Pascabencana', '/dataset/?fase=pascabencana', 'fa-hands-helping', 'purple'),
+        ('Data Lainnya', '/dataset/', 'fa-database', 'gray')] %}
+      <a class="sdbi-home-kategori-card sdbi-home-tone-{{ tone }}" href="{{ url }}">
+        <span class="sdbi-home-kategori-icon"><i class="fa {{ icon }}" aria-hidden="true"></i></span>
+        <span class="sdbi-home-kategori-label">{{ label }}</span>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
