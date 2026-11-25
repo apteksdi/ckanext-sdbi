@@ -1,0 +1,33 @@
+{% set peta_url = 'https://gis.bnpb.go.id/dev/map' %}
+{% set peta_rooms = h.sdbi_tanggap_rooms() or [] %}
+<section id="peta" class="sdbi-home-peta">
+  <div class="sdbi-home-container sdbi-home-peta-grid">
+    <div class="sdbi-home-peta-main">
+      <h2 class="sdbi-home-section-title">Peta Sebaran Bencana di Indonesia</h2>
+      <p class="sdbi-home-section-desc">Pantau kejadian bencana terkini di seluruh wilayah Indonesia.</p>
+      <iframe class="sdbi-home-peta-frame" src="{{ peta_url }}" title="Peta Sebaran Bencana di Indonesia" loading="lazy"></iframe>
+      <a class="sdbi-home-btn sdbi-home-btn-blue" href="{{ peta_url }}" target="_blank" rel="noopener">Buka Peta Lengkap <i class="fa fa-external-link-alt" aria-hidden="true"></i></a>
+    </div>
+    <aside class="sdbi-home-tanggap">
+      <div class="sdbi-home-tanggap-head">
+        <h3 class="sdbi-home-tanggap-title">Tanggap Darurat Aktif</h3>
+        <span class="sdbi-home-badge-orange">Aktif</span>
+      </div>
+      <div class="sdbi-home-tanggap-body">
+        {% if peta_rooms %}
+        <ul class="sdbi-home-tanggap-list">
+          {% for room in peta_rooms %}
+          <li><a href="/tanggap-darurat?jenis={{ room.slug }}"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> <span>{{ room.label }}</span></a></li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="sdbi-home-tanggap-empty">Belum ada tanggap darurat aktif.</p>
+        {% if c.userobj and c.userobj.sysadmin %}
+        <a class="sdbi-home-tanggap-manage" href="/tanggap-darurat">Kelola Dashboard</a>
+        {% endif %}
+        {% endif %}
+      </div>
+      <div class="sdbi-home-tanggap-foot"><a href="/tanggap-darurat">Lihat Semua <i class="fa fa-arrow-right" aria-hidden="true"></i></a></div>
+    </aside>
+  </div>
+</section>

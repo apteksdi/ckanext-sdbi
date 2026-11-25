@@ -1,0 +1,38 @@
+{% set stats = h.sdbi_theme_connected_statistics() or {} %}
+{% set total_dataset = h.sdbi_theme_dataset_count() or 0 %}
+{% set instansi = (stats.get('kementerian_lembaga_terhubung') or 0) + (stats.get('ngo_terhubung') or 0) %}
+<section class="sdbi-home-hero" style="background-image: linear-gradient(90deg, rgba(8,48,92,.92) 0%, rgba(8,48,92,.7) 45%, rgba(8,48,92,0) 100%), url('/base/images/Dokumentasi-Erupsi-semeru.JPG');">
+  <div class="sdbi-home-container">
+    <div class="sdbi-home-hero-content">
+      <h1 class="sdbi-home-hero-title">Satu Data untuk Indonesia Tangguh Bencana</h1>
+      <p class="sdbi-home-hero-sub">Akses data, informasi, dan statistik kebencanaan Indonesia secara terintegrasi untuk mendukung pengambilan keputusan dan meningkatkan kesiapsiagaan.</p>
+      <form class="sdbi-home-hero-search" action="{{ h.url_for('dataset.search') }}" method="get" role="search">
+        <input type="text" name="q" class="sdbi-home-hero-input" placeholder="Cari dataset, dashboard, atau informasi bencana…" aria-label="Cari">
+        <button type="submit" class="sdbi-home-btn sdbi-home-btn-orange">Cari</button>
+      </form>
+      <div class="sdbi-home-hero-actions">
+        <a href="#peta" class="sdbi-home-btn sdbi-home-btn-outline"><i class="fa fa-map" aria-hidden="true"></i> Lihat Peta Bencana</a>
+        <a href="{{ h.url_for('dataset.search') }}" class="sdbi-home-btn sdbi-home-btn-outline"><i class="fa fa-chart-bar" aria-hidden="true"></i> Jelajahi Dataset</a>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="sdbi-home-stats" aria-label="Statistik">
+  <div class="sdbi-home-container">
+    <div class="sdbi-home-stats-card">
+      {% for icon, value, label in [
+        ('fa-database', total_dataset, 'Total Dataset'),
+        ('fa-map-marker-alt', stats.get('provinsi_terhubung') or 0, 'Provinsi Terhubung'),
+        ('fa-city', stats.get('kabupaten_kota_terhubung') or 0, 'Kabupaten/Kota'),
+        ('fa-users', instansi, 'Instansi Terintegrasi')] %}
+      <div class="sdbi-home-stat">
+        <span class="sdbi-home-stat-icon"><i class="fa {{ icon }}" aria-hidden="true"></i></span>
+        <div>
+          <div class="sdbi-home-stat-value">{{ '{:,}'.format(value|int).replace(',', '.') }}</div>
+          <div class="sdbi-home-stat-label">{{ label }}</div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
