@@ -1,36 +1,76 @@
 {% set peta_url = 'https://gis.bnpb.go.id/dev/map' %}
+{#- icon + tone per jenis tanggap darurat, matched by keyword in the room slug -#}
+{% macro room_style(slug) -%}
+{%- set s = (slug or '') | lower -%}
+{%- if 'gempa' in s -%}fa-house-crack|red
+{%- elif 'gunung' in s or 'erupsi' in s -%}fa-mountain|orange
+{%- elif 'banjir' in s -%}fa-water|blue
+{%- elif 'longsor' in s -%}fa-arrow-trend-down|brown
+{%- elif 'karhutla' in s or 'kebakaran' in s -%}fa-fire|red
+{%- elif 'angin' in s or 'cuaca' in s -%}fa-wind|teal
+{%- elif 'kekeringan' in s -%}fa-sun|orange
+{%- else -%}fa-circle-exclamation|gray
+{%- endif -%}
+{%- endmacro %}
 <section id="peta" class="sdbi-home-peta" data-reveal>
-  <div class="sdbi-home-container sdbi-home-peta-grid">
-    <div class="sdbi-home-peta-main">
-      <h2 class="sdbi-home-section-title">Peta Sebaran Bencana di Indonesia</h2>
-      <p class="sdbi-home-section-desc">Pantau kejadian bencana terkini di seluruh wilayah Indonesia.</p>
-      <a class="sdbi-home-peta-map" href="{{ peta_url }}" target="_blank" rel="noopener" aria-label="Buka peta sebaran bencana interaktif">
-        <img src="{{ h.url_for_static('/img/peta-sebaran-bencana.jpg') }}" alt="Peta jumlah kejadian bencana per provinsi di Indonesia" loading="lazy">
-        <span class="sdbi-home-peta-map-hint"><i class="fa fa-mouse-pointer" aria-hidden="true"></i> Klik untuk membuka peta interaktif</span>
-      </a>
-      <p class="sdbi-home-peta-swipe"><i class="fa fa-arrows-alt-h" aria-hidden="true"></i> Geser peta ke kiri/kanan untuk melihat seluruh wilayah.</p>
-      <a class="sdbi-home-btn sdbi-home-btn-blue" href="{{ peta_url }}" target="_blank" rel="noopener">Buka Peta Lengkap <i class="fa fa-external-link-alt" aria-hidden="true"></i></a>
-    </div>
-    <aside class="sdbi-home-tanggap">
-      <div class="sdbi-home-tanggap-head">
-        <h3 class="sdbi-home-tanggap-title">Tanggap Darurat Aktif</h3>
-        <span class="sdbi-home-badge-orange">Aktif</span>
+  <div class="sdbi-home-container">
+    <div class="sdbi-home-peta-head">
+      <div>
+        <h2 class="sdbi-home-section-title">Peta Sebaran Bencana di Indonesia</h2>
+        <p class="sdbi-home-section-desc">Pantau kejadian bencana terkini di seluruh wilayah Indonesia.</p>
       </div>
-      <div class="sdbi-home-tanggap-body">
+      <ul class="sdbi-home-peta-legend" aria-label="Keterangan warna peta: jumlah kejadian bencana">
+        <li><span class="sdbi-home-dot sdbi-home-dot-red" aria-hidden="true"></span>Tinggi</li>
+        <li><span class="sdbi-home-dot sdbi-home-dot-orange" aria-hidden="true"></span>Sedang</li>
+        <li><span class="sdbi-home-dot sdbi-home-dot-green" aria-hidden="true"></span>Rendah</li>
+      </ul>
+    </div>
+
+    <div class="sdbi-home-peta-grid">
+      <div class="sdbi-home-peta-main">
+        <a class="sdbi-home-peta-map" href="{{ peta_url }}" target="_blank" rel="noopener" aria-label="Buka peta sebaran bencana interaktif di tab baru">
+          <img src="{{ h.url_for_static('/img/peta-sebaran-bencana.jpg') }}" alt="Peta jumlah kejadian bencana per provinsi di Indonesia" loading="lazy">
+          <span class="sdbi-home-peta-cta"><i class="fa fa-map-location-dot" aria-hidden="true"></i> Buka peta interaktif <i class="fa fa-arrow-up-right-from-square" aria-hidden="true"></i></span>
+        </a>
+        <p class="sdbi-home-peta-note"><i class="fa fa-circle-info" aria-hidden="true"></i> Warna menunjukkan jumlah kejadian bencana per provinsi. Sumber: Peta GIS BNPB, klik peta untuk versi interaktif dengan filter dan data terbaru.</p>
+        <p class="sdbi-home-peta-swipe"><i class="fa fa-arrows-left-right" aria-hidden="true"></i> Geser peta ke kiri/kanan untuk melihat seluruh wilayah, ketuk untuk membuka peta interaktif.</p>
+      </div>
+
+      <aside class="sdbi-home-tanggap" aria-labelledby="sdbi-home-tanggap-title">
+        <div class="sdbi-home-tanggap-head">
+          <h3 id="sdbi-home-tanggap-title" class="sdbi-home-tanggap-title">Tanggap Darurat</h3>
+          {% if tanggap_rooms %}
+          <span class="sdbi-home-live"><span class="sdbi-home-live-dot" aria-hidden="true"></span>{{ tanggap_rooms | length }} aktif</span>
+          {% endif %}
+        </div>
         {% if tanggap_rooms %}
         <ul class="sdbi-home-tanggap-list">
           {% for room in tanggap_rooms %}
-          <li><a href="/tanggap-darurat?jenis={{ room.slug }}"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i> <span>{{ room.label }}</span></a></li>
+          {% set style = room_style(room.slug).split('|') %}
+          {% set n = (room.dashboards or []) | length %}
+          <li>
+            <a href="/tanggap-darurat?jenis={{ room.slug }}">
+              <span class="sdbi-home-tanggap-icon sdbi-home-tone-{{ style[1] }}" aria-hidden="true"><i class="fa {{ style[0] }}"></i></span>
+              <span class="sdbi-home-tanggap-text">
+                <span class="sdbi-home-tanggap-label">{{ room.label }}</span>
+                <span class="sdbi-home-tanggap-sub">{% if n %}{{ n }} dashboard{% else %}Belum ada dashboard{% endif %}</span>
+              </span>
+              <i class="fa fa-chevron-right sdbi-home-tanggap-go" aria-hidden="true"></i>
+            </a>
+          </li>
           {% endfor %}
         </ul>
         {% else %}
-        <p class="sdbi-home-tanggap-empty">Belum ada tanggap darurat aktif.</p>
-        {% if c.userobj and c.userobj.sysadmin %}
-        <a class="sdbi-home-tanggap-manage" href="/tanggap-darurat/kelola">Kelola Dashboard</a>
+        <div class="sdbi-home-tanggap-empty">
+          <i class="fa fa-circle-check" aria-hidden="true"></i>
+          <p>Belum ada tanggap darurat aktif.</p>
+          {% if c.userobj and c.userobj.sysadmin %}
+          <a class="sdbi-home-tanggap-manage" href="/tanggap-darurat/kelola">Kelola dashboard</a>
+          {% endif %}
+        </div>
         {% endif %}
-        {% endif %}
-      </div>
-      <div class="sdbi-home-tanggap-foot"><a href="/tanggap-darurat">Lihat Semua <i class="fa fa-arrow-right" aria-hidden="true"></i></a></div>
-    </aside>
+        <a class="sdbi-home-tanggap-foot" href="/tanggap-darurat">Lihat semua tanggap darurat <i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+      </aside>
+    </div>
   </div>
 </section>
