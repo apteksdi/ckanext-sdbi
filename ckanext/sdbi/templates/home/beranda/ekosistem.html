@@ -1,0 +1,23 @@
+{% from 'home/beranda/_macros.html' import dot_number %}
+{% set eco_instansi = (stats.get('kementerian_lembaga_terhubung') or 0) + (stats.get('ngo_terhubung') or 0) %}
+<section class="sdbi-home-ekosistem" data-reveal aria-labelledby="sdbi-home-ekosistem-title">
+  <div class="sdbi-home-container sdbi-home-ekosistem-inner">
+    <div class="sdbi-home-ekosistem-icon" aria-hidden="true"><i class="fa fa-handshake"></i></div>
+    <div class="sdbi-home-ekosistem-text">
+      <h2 id="sdbi-home-ekosistem-title" class="sdbi-home-ekosistem-title">Ekosistem Data Kebencanaan Nasional</h2>
+      <p class="sdbi-home-ekosistem-desc">Bersama instansi dan pemerintah daerah, BNPB berkomitmen membangun ekosistem data kebencanaan yang terintegrasi.</p>
+    </div>
+    <div class="sdbi-home-ekosistem-stats">
+      {% for value, label in [
+        (stats.get('provinsi_terhubung') or 0, 'Provinsi'),
+        (stats.get('kabupaten_kota_terhubung') or 0, 'Kabupaten/Kota'),
+        (eco_instansi, 'Instansi')] %}
+      <div class="sdbi-home-ekosistem-stat">
+        <div class="sdbi-home-ekosistem-stat-value" data-count="{{ value|int }}">{{ dot_number(value) }}</div>
+        <div class="sdbi-home-ekosistem-stat-label">{{ label }}</div>
+      </div>
+      {% endfor %}
+    </div>
+    <a href="/bantuan" class="sdbi-home-btn sdbi-home-btn-white">Pelajari Integrasi Data</a>
+  </div>
+</section>

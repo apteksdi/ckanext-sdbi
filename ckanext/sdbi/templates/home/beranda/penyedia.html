@@ -1,0 +1,44 @@
+{% from 'home/beranda/_macros.html' import dot_number %}
+{% if extras.providers %}
+<section id="penyedia" class="sdbi-home-penyedia" data-reveal aria-labelledby="sdbi-home-penyedia-title">
+  <div class="sdbi-home-container">
+    <div class="sdbi-home-section-head">
+      <div>
+        <h2 id="sdbi-home-penyedia-title" class="sdbi-home-section-title sdbi-home-title-accent">Penyedia data</h2>
+        <p class="sdbi-home-section-desc">Instansi yang paling banyak membagikan data di portal ini.</p>
+      </div>
+      <a class="sdbi-home-more" href="{{ h.url_for('organization.index') }}">Lihat Semua <i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+    </div>
+
+    {% if extras.provider_types | length > 1 %}
+    <div class="sdbi-home-penyedia-filter" role="group" aria-label="Saring menurut jenis instansi" data-provider-filter hidden>
+      <button type="button" class="sdbi-home-filter-chip is-active" data-type="semua" aria-pressed="true">Semua <span>{{ extras.providers | length }}</span></button>
+      {% for t in extras.provider_types %}
+      <button type="button" class="sdbi-home-filter-chip sdbi-home-type-{{ t.key }}" data-type="{{ t.key }}" aria-pressed="false"><i aria-hidden="true"></i>{{ t.label }} <span>{{ t.count }}</span></button>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <ol class="sdbi-home-penyedia-list">
+      {% for org in extras.providers %}
+      <li class="sdbi-home-type-{{ org.type }}" data-type="{{ org.type }}" style="--sdbi-home-i: {{ loop.index0 }};">
+        <a class="sdbi-home-penyedia-row" href="{{ h.url_for('organization.read', id=org.name) }}">
+          <span class="sdbi-home-penyedia-logo" aria-hidden="true">
+            {% if org.image %}<img src="{{ org.image }}" alt="" loading="lazy" onerror="this.remove()">{% endif %}
+            <span class="sdbi-home-penyedia-initials">{{ org.initials }}</span>
+          </span>
+          <span class="sdbi-home-penyedia-main">
+            <span class="sdbi-home-penyedia-top">
+              <span class="sdbi-home-penyedia-name">{{ org.title }}</span>
+              <span class="sdbi-home-penyedia-count"><strong>{{ dot_number(org.count) }}</strong> dataset</span>
+            </span>
+            <span class="sdbi-home-penyedia-bar" aria-hidden="true"><span style="--sdbi-home-share: {{ [org.share, 2] | max }}%;"></span></span>
+            <span class="sdbi-home-penyedia-type">{{ org.type_label }}</span>
+          </span>
+        </a>
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+</section>
+{% endif %}

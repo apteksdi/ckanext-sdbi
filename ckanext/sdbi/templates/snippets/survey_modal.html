@@ -1,0 +1,116 @@
+<!-- Survey Popup Modal -->
+<div id="surveyModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="surveyModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header"
+        style="background: linear-gradient(135deg, #ff5e14, #ff8c42); color: white; border-bottom: none;">
+        <h5 class="modal-title" id="surveyModalLabel">
+          <i class="fa fa-clipboard"></i> Survey Kepuasan Pengguna
+        </h5>
+        <button type="button" class="close" data-dismiss="modal" data-bs-dismiss="modal" aria-label="Close" style="color: white;">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="survey-intro" style="margin-bottom: 20px;">
+          <div class="alert alert-info" style="border-left: 4px solid #ff5e14;">
+            <h6><i class="fa fa-info-circle"></i> Mengapa Survey Ini Penting?</h6>
+            <p style="margin-bottom: 0; font-size: 14px;">
+              Feedback Anda sangat berharga untuk meningkatkan kualitas layanan portal data bencana BNPB.
+              Survey ini hanya membutuhkan waktu 2-3 menit untuk diselesaikan.
+            </p>
+          </div>
+        </div>
+        <div id="surveyContent">
+          <div class="text-center" style="padding: 40px 20px;">
+            <i class="fa fa-spinner fa-spin fa-3x" style="color: #ff5e14;"></i>
+            <p style="margin-top: 15px; color: #666;">Memuat survey...</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="background: #f8f9fa; border-top: 1px solid #dee2e6;">
+        <div class="row w-100 align-items-center">
+          <div class="col-md-6">
+            <small class="text-muted">
+              <i class="fa fa-clock"></i> Estimasi waktu: 2-3 menit
+            </small>
+          </div>
+          <div class="col-md-6 text-right">
+            <div class="btn-group" role="group">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal" data-bs-dismiss="modal" style="margin-right: 8px;">
+                <i class="fa fa-times"></i> Tutup
+              </button>
+              <a href="#" id="openSurveyNewTab" class="btn btn-primary" target="_blank"
+                style="background: #ff5e14; border-color: #ff5e14;">
+                <i class="fa fa-external-link"></i> Buka di Tab Baru
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function showSurveyPopup() {
+    // Fetch available surveys
+    fetch('/api/google-forms/exit-intent')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success && data.forms && data.forms.length > 0) {
+          // Get the first active survey
+          const survey = data.forms[0];
+
+          // Update modal content
+          document.getElementById('surveyContent').innerHTML = `
+          <div class="survey-form-container">
+            <div class="form-header" style="margin-bottom: 20px;">
+              <h5 style="color: #333; margin-bottom: 10px;">${survey.title}</h5>
+              <p style="color: #666; font-size: 14px; margin-bottom: 0;">${survey.description || 'Mohon berikan feedback Anda untuk membantu kami meningkatkan layanan portal data bencana.'}</p>
+            </div>
+            <div class="text-center" style="padding: 28px 16px; border: 1px solid #e9ecef; border-radius: 8px;">
+              <p style="color: #666; margin-bottom: 16px;">Google Forms tidak bisa di-embed (CSP). Buka survey di tab baru.</p>
+              <a href="${survey.form_url}" target="_blank" rel="noopener noreferrer" class="btn btn-primary"
+                style="background: #ff5e14; border-color: #ff5e14;">
+                <i class="fa fa-external-link"></i> Isi Survey
+              </a>
+            </div>
+          </div>
+        `;
+
+          // Update "Open in New Tab" link
+          document.getElementById('openSurveyNewTab').href = survey.form_url;
+
+          // Show modal
+          $('#surveyModal').modal('show');
+        } else {
+          // No surveys available
+          document.getElementById('surveyContent').innerHTML = `
+          <div class="text-center" style="padding: 40px 20px;">
+            <i class="fa fa-clipboard fa-3x" style="color: #ccc; margin-bottom: 15px;"></i>
+            <h5 style="color: #666;">Survey Belum Tersedia</h5>
+            <p style="color: #999; font-size: 14px;">
+              Saat ini belum ada survey yang aktif. Silakan cek kembali nanti.
+            </p>
+          </div>
+        `;
+          $('#surveyModal').modal('show');
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching survey:', error);
+        document.getElementById('surveyContent').innerHTML = `
+        <div class="text-center" style="padding: 40px 20px;">
+          <i class="fa fa-exclamation-triangle fa-3x" style="color: #dc3545; margin-bottom: 15px;"></i>
+          <h5 style="color: #666;">Terjadi Kesalahan</h5>
+          <p style="color: #999; font-size: 14px;">
+            Gagal memuat survey. Silakan coba lagi nanti.
+          </p>
+        </div>
+      `;
+        $('#surveyModal').modal('show');
+      });
+  }
+</script>
