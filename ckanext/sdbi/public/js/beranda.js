@@ -1,7 +1,7 @@
 /* Beranda SDBI
    1. Gentle reveal-on-scroll + one-time count-up (skipped for reduced motion).
    2. Hero search autocomplete (always on; plain form submit still works without JS).
-   3. Interactive how-to tour.  4. Provider type filter. */
+   3. Interactive how-to tour.  4. Provider type filter.  5. Live GIS map lock/fullscreen. */
 (function () {
   'use strict';
   var root = document.querySelector('.sdbi-home');
@@ -277,7 +277,53 @@
     });
   }
 
+  /* ---------- 5. Peta GIS live ---------- */
+  function initLiveMap() {
+    var card = root.querySelector('[data-live-map]');
+    if (!card) return;
+    var frame = card.querySelector('iframe');
+    var activate = card.querySelector('[data-map-activate]');
+    var fullscreen = card.querySelector('[data-map-fullscreen]');
+
+    frame.addEventListener('load', function () { card.classList.add('is-loaded'); });
+
+    function lock() {
+      card.classList.add('is-locked');
+      activate.hidden = false;
+    }
+    function unlock() {
+      card.classList.remove('is-locked');
+      activate.hidden = true;
+      frame.focus();
+    }
+    lock();
+    activate.addEventListener('click', unlock);
+    // Desktop: re-lock when the pointer leaves, so the next wheel over the map scrolls the page.
+    card.addEventListener('mouseleave', function () { if (!document.fullscreenElement) lock(); });
+    // Touch: re-lock when the visitor taps elsewhere on the page.
+    document.addEventListener('touchstart', function (e) {
+      if (!card.contains(e.target)) lock();
+    }, { passive: true });
+
+    if (fullscreen && card.requestFullscreen) {
+      fullscreen.hidden = false;
+      fullscreen.addEventListener('click', function () {
+        if (document.fullscreenElement) { document.exitFullscreen(); return; }
+        card.requestFullscreen().then(unlock).catch(function () {});
+      });
+      document.addEventListener('fullscreenchange', function () {
+        var on = document.fullscreenElement === card;
+        var icon = fullscreen.querySelector('.fa');
+        icon.className = 'fa ' + (on ? 'fa-compress' : 'fa-expand');
+        fullscreen.setAttribute('aria-label', on ? 'Keluar dari layar penuh' : 'Tampilkan peta layar penuh');
+        fullscreen.title = on ? 'Keluar dari layar penuh' : 'Layar penuh';
+        if (!on) lock();
+      });
+    }
+  }
+
   initMotion();
+  initLiveMap();
   initAutocomplete();
   initTour();
   initProviderFilter();

@@ -5,7 +5,7 @@
 {% block custom_styles %}
   {{ super() }}
   <link rel="stylesheet" href="/base/vendor/fontawesome-free/css/all.css">
-  <link rel="stylesheet" href="{{ h.url_for_static('/css/beranda.css') }}?v=25">
+  <link rel="stylesheet" href="{{ h.url_for_static('/css/beranda.css') }}?v=27">
 {% endblock %}
 
 {#- Header, footer and all scripts come from page.html (global header.html /
@@ -30,5 +30,5 @@
 
 {% block scripts %}
   {{ super() }}
-  <script src="{{ h.url_for_static('/js/beranda.js') }}?v=4" defer></script>
+  <script src="{{ h.url_for_static('/js/beranda.js') }}?v=5" defer></script>
 {% endblock %}

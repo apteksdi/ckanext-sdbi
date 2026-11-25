@@ -1,4 +1,4 @@
-{% set peta_url = 'https://gis.bnpb.go.id/dev/map' %}
+{% set peta_url = 'https://gis.bnpb.go.id/dev/map/' %}
 {#- icon + tone per jenis tanggap darurat, matched by keyword in the room slug -#}
 {% macro room_style(slug) -%}
 {%- set s = (slug or '') | lower -%}
@@ -19,20 +19,26 @@
         <h2 class="sdbi-home-section-title">Peta Sebaran Bencana di Indonesia</h2>
         <p class="sdbi-home-section-desc">Pantau kejadian bencana terkini di seluruh wilayah Indonesia.</p>
       </div>
-      <ul class="sdbi-home-peta-legend" aria-label="Keterangan warna peta: jumlah kejadian bencana">
-        <li><span class="sdbi-home-dot sdbi-home-dot-red" aria-hidden="true"></span>Tinggi</li>
-        <li><span class="sdbi-home-dot sdbi-home-dot-orange" aria-hidden="true"></span>Sedang</li>
-        <li><span class="sdbi-home-dot sdbi-home-dot-green" aria-hidden="true"></span>Rendah</li>
-      </ul>
+      <span class="sdbi-home-live"><span class="sdbi-home-live-dot" aria-hidden="true"></span>Data langsung dari GIS BNPB</span>
     </div>
 
     <div class="sdbi-home-peta-grid">
       <div class="sdbi-home-peta-main">
-        <a class="sdbi-home-peta-map" href="{{ peta_url }}" target="_blank" rel="noopener" aria-label="Buka peta sebaran bencana interaktif di tab baru">
-          <img src="{{ h.url_for_static('/img/peta-sebaran-bencana.jpg') }}" alt="Peta jumlah kejadian bencana per provinsi di Indonesia" loading="lazy">
-          <span class="sdbi-home-peta-cta"><i class="fa fa-map-location-dot" aria-hidden="true"></i> Buka peta interaktif <i class="fa fa-arrow-up-right-from-square" aria-hidden="true"></i></span>
-        </a>
-        <p class="sdbi-home-peta-swipe"><i class="fa fa-arrows-left-right" aria-hidden="true"></i> Geser peta ke kiri/kanan untuk melihat seluruh wilayah, ketuk untuk membuka peta interaktif.</p>
+        {#- Live GIS map. Scroll/zoom inside the iframe is locked until the visitor
+            clicks it (so the page scroll is never hijacked); the screenshot is a
+            poster shown while the iframe loads. -#}
+        <div class="sdbi-home-peta-map" data-live-map>
+          <img class="sdbi-home-peta-poster" src="{{ h.url_for_static('/img/peta-sebaran-bencana.jpg') }}" alt="" aria-hidden="true">
+          <iframe class="sdbi-home-peta-frame" src="{{ peta_url }}" title="Peta sebaran kejadian bencana di Indonesia (GIS BNPB)"
+            loading="lazy" allow="fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>
+          <button type="button" class="sdbi-home-peta-activate" data-map-activate hidden>
+            <span><i class="fa fa-hand-pointer" aria-hidden="true"></i> Klik untuk menjelajah peta</span>
+          </button>
+          <div class="sdbi-home-peta-tools">
+            <button type="button" class="sdbi-home-peta-tool" data-map-fullscreen hidden title="Layar penuh" aria-label="Tampilkan peta layar penuh"><i class="fa fa-expand" aria-hidden="true"></i></button>
+            <a class="sdbi-home-peta-tool" href="{{ peta_url }}" target="_blank" rel="noopener" title="Buka di tab baru" aria-label="Buka peta di tab baru"><i class="fa fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
+          </div>
+        </div>
       </div>
 
       <aside class="sdbi-home-tanggap" aria-labelledby="sdbi-home-tanggap-title">
@@ -71,6 +77,6 @@
         <a class="sdbi-home-tanggap-foot" href="/tanggap-darurat">Lihat semua tanggap darurat <i class="fa fa-arrow-right" aria-hidden="true"></i></a>
       </aside>
     </div>
-    <p class="sdbi-home-peta-note"><i class="fa fa-circle-info" aria-hidden="true"></i> Warna menunjukkan jumlah kejadian bencana per provinsi. Sumber: Peta GIS BNPB, klik peta untuk versi interaktif dengan filter dan data terbaru.</p>
+    <p class="sdbi-home-peta-note"><i class="fa fa-circle-info" aria-hidden="true"></i> Peta dimuat langsung dari <a href="{{ peta_url }}" target="_blank" rel="noopener">GIS BNPB</a>. Klik peta untuk menggeser, memperbesar, dan memakai filternya.</p>
   </div>
 </section>
