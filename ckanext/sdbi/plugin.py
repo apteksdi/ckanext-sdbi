@@ -108,6 +108,18 @@ def most_popular_datasets(num=4):
         # Fallback to recent datasets if there's an error
         return most_recent_datasets(num)
 
+def beranda_kategori_counts():
+    """Dataset counts per beranda category (cached), or None on failure."""
+    from ckanext.sdbi.lib.beranda import kategori_counts
+    return kategori_counts()
+
+
+def beranda_waktu(iso_value):
+    """Relative time in Bahasa Indonesia for beranda dataset lists."""
+    from ckanext.sdbi.lib.beranda import waktu_relatif
+    return waktu_relatif(iso_value)
+
+
 def dataset_count():
     """Return a count of all datasets"""
     try:
@@ -635,7 +647,9 @@ class SDBIPlugin(plugins.SingletonPlugin):
                 'json_loads': json_loads,
                 'sdbi_json_harvest_form_defaults': json_harvest_form_defaults,
                 'sdbi_tanggap_rooms': sdbi_tanggap_rooms,
-                'sdbi_totp_configured': sdbi_totp_configured}
+                'sdbi_totp_configured': sdbi_totp_configured,
+                'sdbi_beranda_kategori_counts': beranda_kategori_counts,
+                'sdbi_beranda_waktu': beranda_waktu}
 
     def get_auth_functions(self):
         # CKAN 2.10 refuses a second implementation of the same auth

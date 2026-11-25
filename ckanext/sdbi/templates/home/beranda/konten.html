@@ -1,29 +1,41 @@
 {% from 'home/beranda/_macros.html' import dataset_item with context %}
-{% set latest = h.sdbi_theme_most_recent_datasets(4) or [] %}
-{% set popular = h.sdbi_theme_most_popular_datasets(4) or [] %}
+{#- Fetch views/downloads once per dataset; the ranked list needs the max for its bars. -#}
+{% set latest = [] %}
+{% for pkg in (h.sdbi_theme_most_recent_datasets(4) or []) %}
+  {% do latest.append({'pkg': pkg,
+    'views': (h.get_dataset_views_by_name(pkg.name) or {}).get('total_views') or 0,
+    'downloads': (h.get_dataset_downloads_by_name(pkg.name) or {}).get('total_downloads') or 0}) %}
+{% endfor %}
+{% set popular = [] %}
+{% for pkg in (h.sdbi_theme_most_popular_datasets(4) or []) %}
+  {% do popular.append({'pkg': pkg,
+    'views': (h.get_dataset_views_by_name(pkg.name) or {}).get('total_views') or 0,
+    'downloads': (h.get_dataset_downloads_by_name(pkg.name) or {}).get('total_downloads') or 0}) %}
+{% endfor %}
+{% set top_views = (popular | map(attribute='views') | max) if popular else 0 %}
 <section id="konten" class="sdbi-home-datasets" data-reveal>
   <div class="sdbi-home-container sdbi-home-datasets-grid">
-    <div class="sdbi-home-ds-panel">
+    <div class="sdbi-home-ds-panel sdbi-home-ds-panel-latest">
       <div class="sdbi-home-section-head">
         <h2 class="sdbi-home-section-title sdbi-home-title-accent">Dataset Terbaru</h2>
         <a class="sdbi-home-more" href="{{ h.url_for('dataset.search', sort='metadata_created desc') }}">Lihat Semua <i class="fa fa-arrow-right" aria-hidden="true"></i></a>
       </div>
       {% if latest %}
       <ul class="sdbi-home-ds-list">
-        {% for pkg in latest %}{{ dataset_item(pkg) }}{% endfor %}
+        {% for item in latest %}{{ dataset_item(item, when=h.sdbi_beranda_waktu(item.pkg.metadata_created)) }}{% endfor %}
       </ul>
       {% else %}
       <p class="sdbi-home-empty">Belum ada dataset yang diterbitkan.</p>
       {% endif %}
     </div>
-    <div class="sdbi-home-ds-panel">
+    <div class="sdbi-home-ds-panel sdbi-home-ds-panel-popular">
       <div class="sdbi-home-section-head">
         <h2 class="sdbi-home-section-title sdbi-home-title-accent">Dataset Populer</h2>
         <a class="sdbi-home-more" href="{{ h.url_for('dataset.search', sort='views_recent desc') }}">Lihat Semua <i class="fa fa-arrow-right" aria-hidden="true"></i></a>
       </div>
       {% if popular %}
       <ol class="sdbi-home-ds-list sdbi-home-ds-ranked">
-        {% for pkg in popular %}{{ dataset_item(pkg, loop.index) }}{% endfor %}
+        {% for item in popular %}{{ dataset_item(item, rank=loop.index, share=((item.views * 100 / top_views) | round | int) if top_views else 0) }}{% endfor %}
       </ol>
       {% else %}
       <p class="sdbi-home-empty">Belum ada dataset yang sering dilihat.</p>
