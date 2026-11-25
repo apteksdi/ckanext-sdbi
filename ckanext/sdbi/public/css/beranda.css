@@ -17,3 +17,199 @@
   margin: 0 auto;
   padding: 0 24px;
 }
+
+/* ---- Header ---- */
+.sdbi-home .sdbi-home-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: #fff;
+  box-shadow: 0 1px 0 #e5e9f0, 0 2px 8px rgba(8, 48, 92, 0.06);
+}
+.sdbi-home .sdbi-home-header-inner {
+  max-width: 1280px;
+  margin: 0 auto;
+  min-height: 72px;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+.sdbi-home .sdbi-home-logo img {
+  display: block;
+  height: 44px;
+  width: auto;
+}
+.sdbi-home .sdbi-home-nav {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.sdbi-home .sdbi-home-menu {
+  list-style: none;
+  margin: 0 auto;
+  padding: 0;
+  display: flex;
+  align-items: stretch;
+  gap: 4px;
+}
+.sdbi-home .sdbi-home-menu > li {
+  position: relative;
+  display: flex;
+}
+.sdbi-home .sdbi-home-menu > li > a {
+  display: flex;
+  align-items: center;
+  padding: 26px 12px 23px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1f2a37;
+  border-bottom: 3px solid transparent;
+}
+.sdbi-home .sdbi-home-menu > li > a:hover,
+.sdbi-home .sdbi-home-menu > li > a:focus {
+  color: #0b4a8b;
+}
+.sdbi-home .sdbi-home-menu > li.active > a {
+  color: #0b4a8b;
+  border-bottom-color: #0b4a8b;
+}
+.sdbi-home .sdbi-home-menu .caret {
+  margin-left: 6px;
+}
+.sdbi-home .sdbi-home-dropdown .dropdown-menu {
+  margin-top: 0;
+  padding: 6px 0;
+  border: 1px solid #e5e9f0;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(8, 48, 92, 0.14);
+}
+.sdbi-home .sdbi-home-dropdown .dropdown-menu > li > a {
+  display: block;
+  padding: 8px 18px;
+  font-size: 14px;
+  color: #1f2a37;
+  white-space: nowrap;
+}
+.sdbi-home .sdbi-home-dropdown .dropdown-menu > li > a:hover,
+.sdbi-home .sdbi-home-dropdown .dropdown-menu > li.active > a {
+  background: #eef4fb;
+  color: #0b4a8b;
+}
+.sdbi-home .sdbi-home-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.sdbi-home .sdbi-home-search-btn {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #0b4a8b;
+  font-size: 16px;
+}
+.sdbi-home .sdbi-home-search-btn:hover {
+  background: #eef4fb;
+}
+.sdbi-home .sdbi-home-login {
+  display: inline-block;
+  padding: 9px 24px;
+  border-radius: 999px;
+  background: #f58220;
+  color: #fff;
+  font-weight: 600;
+  font-size: 15px;
+}
+.sdbi-home .sdbi-home-login:hover {
+  background: #d96f12;
+  color: #fff;
+}
+.sdbi-home .sdbi-home-register {
+  font-size: 15px;
+  font-weight: 500;
+  color: #0b4a8b;
+}
+.sdbi-home .sdbi-home-user-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.sdbi-home .sdbi-home-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+.sdbi-home .sdbi-home-burger {
+  display: none;
+  margin-left: auto;
+  width: 44px;
+  height: 44px;
+  padding: 11px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  flex-direction: column;
+  justify-content: space-between;
+}
+.sdbi-home .sdbi-home-burger-bar {
+  display: block;
+  height: 2px;
+  background: #0b4a8b;
+  border-radius: 2px;
+}
+
+@media (max-width: 991px) {
+  .sdbi-home .sdbi-home-header-inner {
+    flex-wrap: wrap;
+    min-height: 64px;
+    padding: 10px 16px;
+    gap: 0;
+  }
+  .sdbi-home .sdbi-home-burger {
+    display: flex;
+  }
+  .sdbi-home .sdbi-home-nav {
+    display: none;
+    flex: 0 0 100%;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 8px 0 16px;
+    border-top: 1px solid #e5e9f0;
+  }
+  .sdbi-home .sdbi-home-nav.is-open {
+    display: flex;
+  }
+  .sdbi-home .sdbi-home-menu {
+    flex-direction: column;
+    margin: 0;
+  }
+  .sdbi-home .sdbi-home-menu > li > a {
+    padding: 12px 8px;
+    border-bottom: 0;
+    border-left: 3px solid transparent;
+    width: 100%;
+  }
+  .sdbi-home .sdbi-home-menu > li.active > a {
+    border-left-color: #0b4a8b;
+  }
+  .sdbi-home .sdbi-home-menu > li.dropdown {
+    flex-direction: column;
+  }
+  .sdbi-home .sdbi-home-menu .dropdown-menu {
+    position: static;
+    float: none;
+    box-shadow: none;
+    border: 0;
+    margin-left: 16px;
+  }
+  .sdbi-home .sdbi-home-actions {
+    padding: 12px 8px 0;
+  }
+}

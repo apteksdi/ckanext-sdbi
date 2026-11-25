@@ -1,0 +1,85 @@
+{% set tanggap_rooms = h.sdbi_tanggap_rooms() %}
+{% set tanggap_sysadmin = c.userobj and c.userobj.sysadmin %}
+{% set tanggap_active = request.path.startswith('/tanggap-darurat') %}
+<header class="sdbi-home-header">
+  <div class="sdbi-home-header-inner">
+    <a class="sdbi-home-logo" href="{{ h.url_for('home.index') }}" title="Beranda">
+      <img src="{{ h.url_for_static('/img/logo-bnpb-header.png') }}" alt="BNPB - Badan Nasional Penanggulangan Bencana" height="44">
+    </a>
+    <button type="button" class="sdbi-home-burger" aria-expanded="false" aria-controls="sdbi-home-nav" aria-label="Menu">
+      <span class="sdbi-home-burger-bar"></span>
+      <span class="sdbi-home-burger-bar"></span>
+      <span class="sdbi-home-burger-bar"></span>
+    </button>
+    <nav class="sdbi-home-nav" id="sdbi-home-nav" aria-label="Menu utama">
+      <ul class="sdbi-home-menu">
+        <li class="active"><a href="{{ h.url_for('home.index') }}" title="Beranda">Beranda</a></li>
+        <li><a href="{{ h.url_for('dataset.search') }}" title="Dataset">Dataset</a></li>
+        <li><a href="{{ h.url_for('organization.index') }}" title="Organisasi">Organisasi</a></li>
+        <li><a href="{{ h.url_for('showcase_blueprint.index') }}" title="Aplikasi">Aplikasi</a></li>
+        <li><a href="/sebaran-bpbd" title="Peta BPBD">Peta BPBD</a></li>
+        {% if tanggap_rooms or tanggap_sysadmin %}
+        <li class="sdbi-home-dropdown dropdown{% if tanggap_active %} active{% endif %}">
+          <a href="/tanggap-darurat" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" aria-label="Tanggap Darurat">
+            Tanggap Darurat <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu">
+            {% for room in tanggap_rooms %}
+            <li{% if request.args.get('jenis') == room.slug %} class="active"{% endif %}>
+              <a href="/tanggap-darurat?jenis={{ room.slug }}">{{ room.label }}</a>
+            </li>
+            {% endfor %}
+            {% if tanggap_sysadmin %}
+            {% if tanggap_rooms %}<li class="divider" role="separator"></li>{% endif %}
+            <li><a href="/tanggap-darurat/kelola">Kelola Dashboard</a></li>
+            <li><a href="/tanggap-darurat/panduan">Panduan hosting</a></li>
+            {% endif %}
+          </ul>
+        </li>
+        {% else %}
+        <li><a href="/tanggap-darurat" title="Tanggap Darurat">Tanggap Darurat</a></li>
+        {% endif %}
+        <li><a href="/bantuan" title="Bantuan">Bantuan</a></li>
+      </ul>
+      <div class="sdbi-home-actions">
+        <a class="sdbi-home-search-btn" href="{{ h.url_for('dataset.search') }}" title="Cari" aria-label="Cari">
+          <i class="fa fa-search" aria-hidden="true"></i>
+        </a>
+        {% if c.userobj %}
+        <div class="sdbi-home-dropdown dropdown sdbi-home-user">
+          <a href="#" class="sdbi-home-user-toggle dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"
+            title="{{ c.userobj.display_name }}" aria-label="{{ _('Account menu') }}: {{ c.userobj.display_name }}">
+            {% set profile_img = h.url_for_static_or_external(c.userobj.image_display_url) if c.userobj.image_display_url else h.url_for_static('/base/images/placeholder-user.png') %}
+            <img src="{{ profile_img }}" class="sdbi-home-avatar" width="32" height="32" alt=""
+              onerror="this.onerror=null;this.src='{{ h.url_for_static('/base/images/placeholder-user.png') }}';">
+            <span class="caret" aria-hidden="true"></span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-right">
+            <li><a href="{{ h.url_for('user.read', id=c.userobj.name) }}">{{ _('Profile') }}</a></li>
+            <li><a href="{{ h.url_for('user.edit', id=c.userobj.name) }}">{{ _('Profile settings') }}</a></li>
+            <li class="divider" role="separator"></li>
+            <li><a href="{{ h.url_for('activity.dashboard') }}">{{ _('Dashboard') }}</a></li>
+            <li><a href="{{ h.url_for('pages.pages_index') }}">{{ _('Pages') }}</a></li>
+            <li><a href="{{ h.url_for('pages.blog_index') }}">{{ _('Blog') }}</a></li>
+            <li><a href="/analytics">Analytics</a></li>
+            {% if c.userobj.sysadmin %}
+            <li class="divider" role="separator"></li>
+            <li><a href="/harvest">Harvest</a></li>
+            <li><a href="{{ h.url_for('admin.index') }}">{{ _('Admin') }}</a></li>
+            <li><a href="{{ h.url_for('user.api_tokens', id=c.userobj.name) }}">{{ _('API Tokens') }}</a></li>
+            <li><a href="/google-forms">Google Forms</a></li>
+            {% endif %}
+            <li class="divider" role="separator"></li>
+            <li><a href="{{ h.url_for('user.logout') }}">{{ _('Log out') }}</a></li>
+          </ul>
+        </div>
+        {% else %}
+        {% if h.check_access('user_create') %}
+        <a class="sdbi-home-register" href="{{ h.url_for('user.register') }}">Daftar</a>
+        {% endif %}
+        <a class="sdbi-home-login" href="{{ h.url_for('user.login') }}">Masuk</a>
+        {% endif %}
+      </div>
+    </nav>
+  </div>
+</header>
