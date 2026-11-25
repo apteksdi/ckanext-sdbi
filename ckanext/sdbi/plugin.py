@@ -114,6 +114,12 @@ def beranda_kategori_counts():
     return kategori_counts()
 
 
+def beranda_extras():
+    """Popular tags, formats and top providers for the beranda (cached)."""
+    from ckanext.sdbi.lib.beranda import beranda_extras as _extras
+    return _extras()
+
+
 def beranda_waktu(iso_value):
     """Relative time in Bahasa Indonesia for beranda dataset lists."""
     from ckanext.sdbi.lib.beranda import waktu_relatif
@@ -649,7 +655,8 @@ class SDBIPlugin(plugins.SingletonPlugin):
                 'sdbi_tanggap_rooms': sdbi_tanggap_rooms,
                 'sdbi_totp_configured': sdbi_totp_configured,
                 'sdbi_beranda_kategori_counts': beranda_kategori_counts,
-                'sdbi_beranda_waktu': beranda_waktu}
+                'sdbi_beranda_waktu': beranda_waktu,
+                'sdbi_beranda_extras': beranda_extras}
 
     def get_auth_functions(self):
         # CKAN 2.10 refuses a second implementation of the same auth

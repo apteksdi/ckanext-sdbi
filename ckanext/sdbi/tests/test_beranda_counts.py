@@ -77,5 +77,58 @@ class WaktuRelatifTest(unittest.TestCase):
             self.assertEqual(beranda.waktu_relatif(value, now=now), expected, value)
 
 
+
+def extras_search(data_dict):
+    return {'count': 184, 'search_facets': {
+        'tags': {'items': [
+            {'name': 'sdbi', 'count': 100}, {'name': 'bencana', 'count': 128},
+            {'name': 'kejadian', 'count': 34}, {'name': '2026', 'count': 50},
+        ]},
+        'res_format': {'items': [
+            {'name': 'CSV', 'count': 100}, {'name': 'GeoJSON', 'count': 100},
+            {'name': 'XLSX', 'count': 17},
+        ]},
+    }}
+
+
+def extras_orgs(data_dict):
+    return [
+        {'name': 'pusdatinkom', 'title': 'Pusat Data Informasi dan Komunikasi Kebencanaan',
+         'package_count': 78, 'image_display_url': 'http://x/logo.png'},
+        {'name': 'pvmbg', 'title': 'Badan Geologi PVMBG', 'package_count': 5},
+        {'name': 'kosong', 'title': 'Org Kosong', 'package_count': 0},
+    ]
+
+
+class BerandaExtrasTest(unittest.TestCase):
+    def setUp(self):
+        beranda._reset_cache()
+
+    def test_tags_hide_internal_and_sort_by_count(self):
+        extras = beranda.beranda_extras(extras_search, extras_orgs, now=0, tag_limit=2)
+        self.assertEqual([t['name'] for t in extras['tags']], ['bencana', '2026'])
+
+    def test_formats_tie_broken_by_name(self):
+        extras = beranda.beranda_extras(extras_search, extras_orgs, now=0)
+        self.assertEqual([f['name'] for f in extras['formats']], ['CSV', 'GeoJSON', 'XLSX'])
+
+    def test_providers_skip_empty_and_build_initials(self):
+        providers = beranda.beranda_extras(extras_search, extras_orgs, now=0)['providers']
+        self.assertEqual([p['name'] for p in providers], ['pusdatinkom', 'pvmbg'])
+        self.assertEqual(providers[0]['image'], 'http://x/logo.png')
+        self.assertEqual(providers[1]['image'], '')
+        self.assertEqual(providers[1]['initials'], 'BG')
+
+    def test_extras_and_kategori_cached_independently(self):
+        beranda.kategori_counts(fake_search, now=0)
+        extras = beranda.beranda_extras(extras_search, extras_orgs, now=1)
+        self.assertEqual(extras['formats'][0]['name'], 'CSV')
+
+    def test_extras_failure_returns_none(self):
+        def boom(d):
+            raise RuntimeError('down')
+        self.assertIsNone(beranda.beranda_extras(boom, extras_orgs, now=0))
+
+
 if __name__ == '__main__':
     unittest.main()

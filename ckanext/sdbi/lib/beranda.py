@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-"""Data for the beranda (homepage) category cards.
+"""Data for the beranda (homepage): category counts, search suggestions,
+format summary and top data providers.
 
 Counts are cached in-process for a few minutes: the homepage is the most
 visited page and these numbers do not need to be live to the second.
@@ -10,7 +11,27 @@ CACHE_SECONDS = 300
 FASE_KEYS = ('prabencana', 'saatbencana', 'pascabencana')
 KEYWORD_KEYS = ('kejadian', 'dampak')
 
-_cache = {'at': None, 'value': None}
+_caches = {}
+
+# Internal/housekeeping tags that mean nothing to a visitor.
+HIDDEN_TAGS = ('sdbi',)
+
+
+def _cached(key, compute, now):
+    """Run compute() at most once per CACHE_SECONDS per key.
+
+    On failure returns the last good value (or None if there never was one).
+    """
+    now = time.time() if now is None else now
+    entry = _caches.get(key)
+    if entry and now - entry[0] < CACHE_SECONDS:
+        return entry[1]
+    try:
+        value = compute()
+    except Exception:
+        return entry[1] if entry else None
+    _caches[key] = (now, value)
+    return value
 
 
 def _ckan_search(data_dict):
@@ -41,21 +62,63 @@ def kategori_counts(search=None, now=None):
     On a search failure returns None so the template can hide the counts
     instead of showing misleading zeros.
     """
-    now = time.time() if now is None else now
-    if _cache['at'] is not None and now - _cache['at'] < CACHE_SECONDS:
-        return _cache['value']
-    try:
-        value = _compute(search or _ckan_search)
-    except Exception:
-        return _cache['value']  # last good value (or None) on failure
-    _cache['at'] = now
-    _cache['value'] = value
-    return value
+    return _cached('kategori', lambda: _compute(search or _ckan_search), now)
+
+
+def _ckan_orgs(data_dict):
+    import ckan.plugins.toolkit as toolkit
+    return toolkit.get_action('organization_list')({}, data_dict)
+
+
+def _facet_items(result, field, limit, hidden=()):
+    facet = (result.get('search_facets') or {}).get(field) or {}
+    items = [
+        {'name': i.get('name'), 'count': i.get('count') or 0}
+        for i in facet.get('items') or []
+        if i.get('name') and i.get('name').lower() not in hidden
+    ]
+    items.sort(key=lambda i: (-i['count'], i['name'].lower()))
+    return items[:limit]
+
+
+def _compute_extras(search, orgs, tag_limit, format_limit, org_limit):
+    result = search({
+        'rows': 0,
+        'facet.field': ['tags', 'res_format'],
+        'facet.limit': max(tag_limit, format_limit) + len(HIDDEN_TAGS),
+    })
+    providers = []
+    for org in orgs({'all_fields': True, 'sort': 'package_count desc', 'limit': org_limit}) or []:
+        count = org.get('package_count') or 0
+        if not count:
+            continue
+        title = org.get('title') or org.get('name') or ''
+        providers.append({
+            'name': org.get('name'),
+            'title': title,
+            'count': count,
+            'image': org.get('image_display_url') or '',
+            'initials': ''.join(w[0] for w in title.split() if w[:1].isalnum())[:2].upper() or '?',
+        })
+    return {
+        'tags': _facet_items(result, 'tags', tag_limit, HIDDEN_TAGS),
+        'formats': _facet_items(result, 'res_format', format_limit),
+        'providers': providers,
+    }
+
+
+def beranda_extras(search=None, orgs=None, now=None, tag_limit=5, format_limit=6, org_limit=8):
+    """Popular tags, resource formats and top data providers for the beranda.
+
+    Returns {'tags': [...], 'formats': [...], 'providers': [...]} or None if
+    it could never be computed.
+    """
+    return _cached('extras', lambda: _compute_extras(
+        search or _ckan_search, orgs or _ckan_orgs, tag_limit, format_limit, org_limit), now)
 
 
 def _reset_cache():
-    _cache['at'] = None
-    _cache['value'] = None
+    _caches.clear()
 
 
 def waktu_relatif(iso_value, now=None):

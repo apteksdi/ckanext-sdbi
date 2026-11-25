@@ -1,0 +1,56 @@
+{% from 'home/beranda/_macros.html' import dot_number %}
+{% set api_example = h.url_for('/api/3/action/package_search', qualified=true) ~ '?q=banjir' %}
+<section id="panduan" class="sdbi-home-panduan" data-reveal aria-labelledby="sdbi-home-panduan-title">
+  <div class="sdbi-home-container sdbi-home-panduan-grid">
+    <div class="sdbi-home-panduan-steps-wrap">
+      <h2 id="sdbi-home-panduan-title" class="sdbi-home-section-title sdbi-home-title-accent">Cara memakai portal ini</h2>
+      <p class="sdbi-home-section-desc">Tiga langkah dari mencari sampai memakai data kebencanaan.</p>
+      <ol class="sdbi-home-steps">
+        <li class="sdbi-home-step">
+          <span class="sdbi-home-step-num" aria-hidden="true">1</span>
+          <span class="sdbi-home-step-icon" aria-hidden="true"><i class="fa fa-magnifying-glass"></i></span>
+          <h3 class="sdbi-home-step-title">Cari dataset</h3>
+          <p class="sdbi-home-step-text">Ketik kata kunci atau pilih kategori, lalu saring hasil berdasarkan organisasi, format, dan tag.</p>
+          <a class="sdbi-home-step-link" href="{{ h.url_for('dataset.search') }}">Mulai mencari</a>
+        </li>
+        <li class="sdbi-home-step">
+          <span class="sdbi-home-step-num" aria-hidden="true">2</span>
+          <span class="sdbi-home-step-icon" aria-hidden="true"><i class="fa fa-eye"></i></span>
+          <h3 class="sdbi-home-step-title">Lihat pratinjau</h3>
+          <p class="sdbi-home-step-text">Buka dataset untuk membaca deskripsi, sumber, dan isi datanya sebelum mengunduh.</p>
+        </li>
+        <li class="sdbi-home-step">
+          <span class="sdbi-home-step-num" aria-hidden="true">3</span>
+          <span class="sdbi-home-step-icon" aria-hidden="true"><i class="fa fa-download"></i></span>
+          <h3 class="sdbi-home-step-title">Unduh atau pakai API</h3>
+          <p class="sdbi-home-step-text">Unduh berkas dalam format yang Anda perlukan, atau ambil langsung lewat API untuk aplikasi Anda.</p>
+        </li>
+      </ol>
+    </div>
+
+    <aside class="sdbi-home-panduan-side">
+      {% if extras.formats %}
+      <div class="sdbi-home-formats">
+        <h3 class="sdbi-home-side-title">Format yang tersedia</h3>
+        <ul class="sdbi-home-format-list">
+          {% for fmt in extras.formats %}
+          <li>
+            <a href="{{ h.url_for('dataset.search', res_format=fmt.name) }}">
+              <span class="sdbi-home-ds-format sdbi-home-fmt-{{ fmt.name | lower | replace(' ', '') }}" aria-hidden="true">{{ fmt.name[:4] | upper }}</span>
+              <span class="sdbi-home-format-name">{{ fmt.name }}</span>
+              <span class="sdbi-home-format-count">{{ dot_number(fmt.count) }} dataset</span>
+            </a>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      <div class="sdbi-home-dev">
+        <h3 class="sdbi-home-side-title"><i class="fa fa-code" aria-hidden="true"></i> Untuk pengembang</h3>
+        <p>Semua dataset publik bisa diambil lewat CKAN API, misalnya untuk mencari dataset banjir:</p>
+        <code class="sdbi-home-code">GET {{ api_example }}</code>
+        <a class="sdbi-home-dev-link" href="https://docs.ckan.org/en/2.10/api/" target="_blank" rel="noopener">Baca dokumentasi API <i class="fa fa-arrow-up-right-from-square" aria-hidden="true"></i></a>
+      </div>
+    </aside>
+  </div>
+</section>

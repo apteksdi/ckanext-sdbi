@@ -1,0 +1,32 @@
+{% from 'home/beranda/_macros.html' import dot_number %}
+{% if extras.providers %}
+<section id="penyedia" class="sdbi-home-penyedia" data-reveal aria-labelledby="sdbi-home-penyedia-title">
+  <div class="sdbi-home-container">
+    <div class="sdbi-home-section-head">
+      <div>
+        <h2 id="sdbi-home-penyedia-title" class="sdbi-home-section-title sdbi-home-title-accent">Penyedia data</h2>
+        <p class="sdbi-home-section-desc">Instansi yang paling banyak membagikan data di portal ini.</p>
+      </div>
+      <a class="sdbi-home-more" href="{{ h.url_for('organization.index') }}">Lihat Semua <i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+    </div>
+    <ul class="sdbi-home-penyedia-grid">
+      {% for org in extras.providers %}
+      <li>
+        <a class="sdbi-home-penyedia-card" href="{{ h.url_for('organization.read', id=org.name) }}">
+          <span class="sdbi-home-penyedia-logo" aria-hidden="true">
+            {% if org.image %}
+            <img src="{{ org.image }}" alt="" loading="lazy" onerror="this.remove()">
+            {% endif %}
+            <span class="sdbi-home-penyedia-initials">{{ org.initials }}</span>
+          </span>
+          <span class="sdbi-home-penyedia-text">
+            <span class="sdbi-home-penyedia-name">{{ org.title }}</span>
+            <span class="sdbi-home-penyedia-count"><strong>{{ dot_number(org.count) }}</strong> dataset</span>
+          </span>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</section>
+{% endif %}
