@@ -8,5 +8,12 @@
       var open = nav.classList.toggle('is-open');
       burger.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
+    document.querySelector('.sdbi-home').addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && nav.classList.contains('is-open')) {
+        nav.classList.remove('is-open');
+        burger.setAttribute('aria-expanded', 'false');
+        burger.focus();
+      }
+    });
   }
 })();

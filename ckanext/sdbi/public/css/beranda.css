@@ -447,3 +447,63 @@
   .sdbi-home .sdbi-home-kategori-grid { grid-template-columns: repeat(2, 1fr); }
   .sdbi-home .sdbi-home-layanan-track { grid-auto-columns: 78%; }
 }
+
+/* ---- Ekosistem, Footer ---- */
+.sdbi-home { overflow-x: hidden; }
+.sdbi-home .sdbi-home-btn-white { background: #fff; color: #0b4a8b; }
+.sdbi-home .sdbi-home-btn-white:hover { background: #e3effb; color: #08305c; }
+.sdbi-home .sdbi-home-ekosistem { background: #0b4a8b; color: #fff; padding: 40px 0; }
+.sdbi-home .sdbi-home-ekosistem-inner { display: flex; align-items: center; gap: 28px; }
+.sdbi-home .sdbi-home-ekosistem-icon {
+  flex-shrink: 0; width: 72px; height: 72px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255, 255, 255, .15); font-size: 30px;
+}
+.sdbi-home .sdbi-home-ekosistem-text { flex: 1 1 280px; min-width: 0; }
+.sdbi-home .sdbi-home-ekosistem-title { margin: 0 0 6px; font-size: 24px; font-weight: 800; color: #fff; }
+.sdbi-home .sdbi-home-ekosistem-desc { margin: 0; color: rgba(255, 255, 255, .9); }
+.sdbi-home .sdbi-home-ekosistem-stats { display: flex; gap: 32px; flex-shrink: 0; }
+.sdbi-home .sdbi-home-ekosistem-stat { text-align: center; }
+.sdbi-home .sdbi-home-ekosistem-stat-value { font-size: 28px; font-weight: 800; line-height: 1.1; }
+.sdbi-home .sdbi-home-ekosistem-stat-label { font-size: 13px; color: rgba(255, 255, 255, .85); }
+.sdbi-home .sdbi-home-ekosistem .sdbi-home-btn { flex-shrink: 0; }
+
+.sdbi-home .sdbi-home-footer { background: #08305c; color: #fff; }
+.sdbi-home .sdbi-home-footer-inner { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-top: 28px; padding-bottom: 28px; }
+.sdbi-home .sdbi-home-footer-logo img { display: block; height: 40px; width: auto; }
+.sdbi-home .sdbi-home-footer-links { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+.sdbi-home .sdbi-home-footer-links a { color: #fff; font-weight: 500; }
+.sdbi-home .sdbi-home-footer-links a:hover { color: #f58220; }
+.sdbi-home .sdbi-home-footer-links .sdbi-home-footer-survey { color: #f58220; font-weight: 600; }
+.sdbi-home .sdbi-home-footer-social { display: flex; gap: 10px; }
+.sdbi-home .sdbi-home-footer-social a {
+  width: 36px; height: 36px; border-radius: 50%; background: rgba(255, 255, 255, .12);
+  display: flex; align-items: center; justify-content: center; color: #fff;
+}
+.sdbi-home .sdbi-home-footer-social a:hover { background: #f58220; }
+.sdbi-home .sdbi-home-footer-copy { border-top: 1px solid rgba(255, 255, 255, .15); padding: 14px 0; font-size: 13px; color: rgba(255, 255, 255, .8); }
+
+@media (max-width: 991px) {
+  .sdbi-home .sdbi-home-ekosistem-inner { flex-wrap: wrap; }
+  .sdbi-home .sdbi-home-footer-inner { flex-wrap: wrap; }
+  .sdbi-home .sdbi-home-actions .dropdown-menu {
+    position: static;
+    float: none;
+    width: 100%;
+    min-width: 0;
+    box-shadow: none;
+    border: 0;
+    margin: 4px 0 0 16px;
+  }
+}
+@media (max-width: 767px) {
+  .sdbi-home .sdbi-home-hero-title { font-size: 32px; }
+  .sdbi-home .sdbi-home-hero-actions { display: grid; grid-template-columns: 1fr 1fr; }
+  .sdbi-home .sdbi-home-hero-actions .sdbi-home-btn { justify-content: center; text-align: center; padding-left: 10px; padding-right: 10px; }
+  .sdbi-home .sdbi-home-ekosistem-inner { flex-direction: column; align-items: stretch; text-align: center; }
+  .sdbi-home .sdbi-home-ekosistem-icon { margin: 0 auto; }
+  .sdbi-home .sdbi-home-ekosistem-text { flex-basis: auto; }
+  .sdbi-home .sdbi-home-ekosistem-stats { justify-content: space-around; gap: 12px; }
+  .sdbi-home .sdbi-home-ekosistem .sdbi-home-btn { justify-content: center; }
+  .sdbi-home .sdbi-home-footer-inner { flex-direction: column; align-items: flex-start; }
+}
