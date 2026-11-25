@@ -1,60 +1,61 @@
-{% from 'home/beranda/_macros.html' import dot_number %}
-{% set latest = h.sdbi_theme_most_recent_datasets(3) or [] %}
-<section id="konten" class="sdbi-home-konten">
-  <div class="sdbi-home-container sdbi-home-konten-grid">
-    <div class="sdbi-home-konten-latest">
+{% from 'home/beranda/_macros.html' import dataset_item with context %}
+{% set latest = h.sdbi_theme_most_recent_datasets(4) or [] %}
+{% set popular = h.sdbi_theme_most_popular_datasets(4) or [] %}
+<section id="konten" class="sdbi-home-datasets" data-reveal>
+  <div class="sdbi-home-container sdbi-home-datasets-grid">
+    <div class="sdbi-home-ds-panel">
       <div class="sdbi-home-section-head">
         <h2 class="sdbi-home-section-title sdbi-home-title-accent">Dataset Terbaru</h2>
-        <a class="sdbi-home-more" href="{{ h.url_for('dataset.search') }}">Lihat Semua <i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+        <a class="sdbi-home-more" href="{{ h.url_for('dataset.search', sort='metadata_created desc') }}">Lihat Semua <i class="fa fa-arrow-right" aria-hidden="true"></i></a>
       </div>
       {% if latest %}
-      <ul class="sdbi-home-latest-list">
-        {% for pkg in latest %}
-        {% set views = (h.get_dataset_views_by_name(pkg.name) or {}).get('total_views') or 0 %}
-        {% set downloads = (h.get_dataset_downloads_by_name(pkg.name) or {}).get('total_downloads') or 0 %}
-        <li class="sdbi-home-latest-item">
-          <img class="sdbi-home-latest-thumb" src="/base/images/placeholder-image.png" alt="" loading="lazy">
-          <div class="sdbi-home-latest-body">
-            {% if loop.first %}<span class="sdbi-home-badge-orange">Dataset Terbaru</span>{% endif %}
-            <a class="sdbi-home-latest-title" href="{{ h.url_for('dataset.read', id=pkg.name) }}">{{ pkg.title or pkg.name }}</a>
-            {% if pkg.organization and pkg.organization.title %}
-            <div class="sdbi-home-latest-org">{{ pkg.organization.title }}</div>
-            {% endif %}
-            <div class="sdbi-home-latest-meta">
-              <span><i class="fa fa-eye" aria-hidden="true"></i> {{ dot_number(views) }} views</span>
-              <span><i class="fa fa-download" aria-hidden="true"></i> {{ dot_number(downloads) }} downloads</span>
-            </div>
-          </div>
-        </li>
-        {% endfor %}
+      <ul class="sdbi-home-ds-list">
+        {% for pkg in latest %}{{ dataset_item(pkg) }}{% endfor %}
       </ul>
       {% else %}
-      <p class="sdbi-home-empty">Belum ada dataset.</p>
+      <p class="sdbi-home-empty">Belum ada dataset yang diterbitkan.</p>
       {% endif %}
     </div>
-    <div class="sdbi-home-konten-layanan">
+    <div class="sdbi-home-ds-panel">
       <div class="sdbi-home-section-head">
-        <h2 class="sdbi-home-section-title sdbi-home-title-accent">Layanan &amp; Dashboard</h2>
-        <a class="sdbi-home-more" href="{{ h.url_for('showcase_blueprint.index') }}">Lihat Semua <i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+        <h2 class="sdbi-home-section-title sdbi-home-title-accent">Dataset Populer</h2>
+        <a class="sdbi-home-more" href="{{ h.url_for('dataset.search', sort='views_recent desc') }}">Lihat Semua <i class="fa fa-arrow-right" aria-hidden="true"></i></a>
       </div>
-      <div class="sdbi-home-layanan-track">
-        {% for title, desc, url, img, cat in [
-          ('Dashboard Penanganan Gempa Bumi NTT 2026', 'Berikut adalah informasi penanganan gempa bumi ntt 2026 yang dikemas menjadi sebuah dashboard', 'https://data.bnpb.go.id/gempantt2026', 'NTT.png', 'Dashboard'),
-          ('Dashboard Penanganan Karhutla 2026', 'Berikut adalah informasi penanganan karhutla 2026 yang dikemas menjadi sebuah dashboard', 'https://data.bnpb.go.id/data/karhutla2026', 'Karhutla.png', 'Dashboard'),
-          ('Dashboard Penanganan Bansor Sumatera 2025', 'Berikut adalah informasi penanganan bansor sumatera 2025 yang dikemas menjadi sebuah dashboard', 'https://gis.bnpb.go.id/bansorsumatera2025/', 'sumatera.png', 'Dashboard'),
-          ('Dashboard Penanganan Darurat Gempa Bumi Cianjur 2022', 'Berikut adalah informasi penanganan gempa bumi cianjur 2022 yang dikemas menjadi sebuah dashboard', 'https://gis.bnpb.go.id/cianjur2022', 'dashboard-cianjur.png', 'Dashboard'),
-          ('Dashboard Penanganan Darurat Erupsi Lewotobi Laki-Laki', 'Berikut adalah informasi penanganan darurat erupsi gunung api lewotobi laki-laki yang dikemas menjadi sebuah dashboard', 'https://gis.bnpb.go.id/lewotobi2024', 'Lewotobi.PNG', 'Dashboard'),
-          ('Buletin Info Bencana', 'Halaman ini berisi kumpulan kejadian bencana yang dirangkum menjadi sebuah buletin info Bencana', 'https://gis.bnpb.go.id/arcgis/apps/sites/#/public/pages/buletin', 'heli.JPG', 'Informasi')] %}
-        <a class="sdbi-home-layanan-card" href="{{ url }}" target="_blank" rel="noopener">
-          <img class="sdbi-home-layanan-img" src="/base/images/{{ img }}" alt="" loading="lazy">
-          <div class="sdbi-home-layanan-body">
-            <h3 class="sdbi-home-layanan-title">{{ title }}</h3>
-            <p class="sdbi-home-layanan-desc">{{ desc }}</p>
-            <span class="sdbi-home-layanan-cat">{{ cat }}</span>
-          </div>
-        </a>
-        {% endfor %}
-      </div>
+      {% if popular %}
+      <ol class="sdbi-home-ds-list sdbi-home-ds-ranked">
+        {% for pkg in popular %}{{ dataset_item(pkg, loop.index) }}{% endfor %}
+      </ol>
+      {% else %}
+      <p class="sdbi-home-empty">Belum ada dataset yang sering dilihat.</p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<section id="layanan" class="sdbi-home-layanan" data-reveal>
+  <div class="sdbi-home-container">
+    <div class="sdbi-home-section-head">
+      <h2 class="sdbi-home-section-title sdbi-home-title-accent">Layanan &amp; Dashboard</h2>
+      <a class="sdbi-home-more" href="{{ h.url_for('showcase_blueprint.index') }}">Lihat Semua <i class="fa fa-arrow-right" aria-hidden="true"></i></a>
+    </div>
+    <div class="sdbi-home-layanan-track" tabindex="0" aria-label="Daftar layanan dan dashboard, geser untuk melihat lainnya">
+      {% for title, desc, url, img, cat in [
+        ('Dashboard Penanganan Gempa Bumi NTT 2026', 'Berikut adalah informasi penanganan gempa bumi ntt 2026 yang dikemas menjadi sebuah dashboard', 'https://data.bnpb.go.id/gempantt2026', 'NTT.png', 'Dashboard'),
+        ('Dashboard Penanganan Karhutla 2026', 'Berikut adalah informasi penanganan karhutla 2026 yang dikemas menjadi sebuah dashboard', 'https://data.bnpb.go.id/data/karhutla2026', 'Karhutla.png', 'Dashboard'),
+        ('Dashboard Penanganan Bansor Sumatera 2025', 'Berikut adalah informasi penanganan bansor sumatera 2025 yang dikemas menjadi sebuah dashboard', 'https://gis.bnpb.go.id/bansorsumatera2025/', 'sumatera.png', 'Dashboard'),
+        ('Dashboard Penanganan Darurat Gempa Bumi Cianjur 2022', 'Berikut adalah informasi penanganan gempa bumi cianjur 2022 yang dikemas menjadi sebuah dashboard', 'https://gis.bnpb.go.id/cianjur2022', 'dashboard-cianjur.png', 'Dashboard'),
+        ('Dashboard Penanganan Darurat Erupsi Lewotobi Laki-Laki', 'Berikut adalah informasi penanganan darurat erupsi gunung api lewotobi laki-laki yang dikemas menjadi sebuah dashboard', 'https://gis.bnpb.go.id/lewotobi2024', 'Lewotobi.PNG', 'Dashboard'),
+        ('Buletin Info Bencana', 'Halaman ini berisi kumpulan kejadian bencana yang dirangkum menjadi sebuah buletin info Bencana', 'https://gis.bnpb.go.id/arcgis/apps/sites/#/public/pages/buletin', 'heli.JPG', 'Informasi')] %}
+      <a class="sdbi-home-layanan-card" href="{{ url }}" target="_blank" rel="noopener">
+        <span class="sdbi-home-layanan-media"><img class="sdbi-home-layanan-img" src="/base/images/{{ img }}" alt="" loading="lazy"></span>
+        <span class="sdbi-home-layanan-body">
+          <span class="sdbi-home-layanan-cat">{{ cat }}</span>
+          <span class="sdbi-home-layanan-title">{{ title }}</span>
+          <span class="sdbi-home-layanan-desc">{{ desc }}</span>
+          <span class="sdbi-home-layanan-open">Buka <i class="fa fa-external-link-alt" aria-hidden="true"></i></span>
+        </span>
+      </a>
+      {% endfor %}
     </div>
   </div>
 </section>

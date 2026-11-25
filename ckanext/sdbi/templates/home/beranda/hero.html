@@ -29,7 +29,7 @@
       <div class="sdbi-home-stat">
         <span class="sdbi-home-stat-icon"><i class="fa {{ icon }}" aria-hidden="true"></i></span>
         <div>
-          <div class="sdbi-home-stat-value">{{ dot_number(value) }}</div>
+          <div class="sdbi-home-stat-value" data-count="{{ value|int }}">{{ dot_number(value) }}</div>
           <div class="sdbi-home-stat-label">{{ label }}</div>
         </div>
       </div>

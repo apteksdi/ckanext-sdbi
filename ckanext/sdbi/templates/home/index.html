@@ -5,7 +5,7 @@
 {% block custom_styles %}
   {{ super() }}
   <link rel="stylesheet" href="/base/vendor/fontawesome-free/css/all.css">
-  <link rel="stylesheet" href="{{ h.url_for_static('/css/beranda.css') }}?v=11">
+  <link rel="stylesheet" href="{{ h.url_for_static('/css/beranda.css') }}?v=13">
 {% endblock %}
 
 {#- Header, footer and all scripts come from page.html (global header.html /
@@ -23,4 +23,9 @@
     {% include 'home/beranda/ekosistem.html' %}
   </main>
 </div>
+{% endblock %}
+
+{% block scripts %}
+  {{ super() }}
+  <script src="{{ h.url_for_static('/js/beranda.js') }}?v=1" defer></script>
 {% endblock %}

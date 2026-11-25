@@ -1,1 +1,26 @@
 {% macro dot_number(value) -%}{{ '{:,}'.format(value|int).replace(',', '.') }}{%- endmacro %}
+
+{#- One dataset row for the Terbaru / Populer lists.
+    Import with context (needs h): {% from '…/_macros.html' import dataset_item with context %}
+    rank: 1-based position for ranked lists, or none. -#}
+{% macro dataset_item(pkg, rank=none) -%}
+{% set views = (h.get_dataset_views_by_name(pkg.name) or {}).get('total_views') or 0 %}
+{% set downloads = (h.get_dataset_downloads_by_name(pkg.name) or {}).get('total_downloads') or 0 %}
+{% set formats = (pkg.resources or []) | map(attribute='format') | select | map('upper') | unique | list %}
+{% set main_format = formats[0] if formats else 'DATA' %}
+<li class="sdbi-home-ds-item">
+  {% if rank %}<span class="sdbi-home-ds-rank" aria-label="Peringkat {{ rank }}">{{ rank }}</span>{% endif %}
+  <span class="sdbi-home-ds-format sdbi-home-fmt-{{ main_format | lower | replace(' ', '') }}" aria-hidden="true">{{ main_format[:4] }}</span>
+  <div class="sdbi-home-ds-body">
+    <a class="sdbi-home-ds-title" href="{{ h.url_for('dataset.read', id=pkg.name) }}">{{ pkg.title or pkg.name }}</a>
+    {% if pkg.organization and pkg.organization.title %}
+    <div class="sdbi-home-ds-org">{{ pkg.organization.title }}</div>
+    {% endif %}
+    <div class="sdbi-home-ds-meta">
+      <span title="Dilihat"><i class="fa fa-eye" aria-hidden="true"></i> {{ dot_number(views) }}<span class="sdbi-home-sr"> kali dilihat</span></span>
+      <span title="Diunduh"><i class="fa fa-download" aria-hidden="true"></i> {{ dot_number(downloads) }}<span class="sdbi-home-sr"> kali diunduh</span></span>
+      {% if formats | length > 1 %}<span class="sdbi-home-ds-more-fmt">{{ formats[1:3] | join(', ') }}{% if formats | length > 3 %} +{{ formats | length - 3 }}{% endif %}</span>{% endif %}
+    </div>
+  </div>
+</li>
+{%- endmacro %}

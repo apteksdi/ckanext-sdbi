@@ -1,6 +1,6 @@
 {% from 'home/beranda/_macros.html' import dot_number %}
 {% set eco_instansi = (stats.get('kementerian_lembaga_terhubung') or 0) + (stats.get('ngo_terhubung') or 0) %}
-<section class="sdbi-home-ekosistem" aria-labelledby="sdbi-home-ekosistem-title">
+<section class="sdbi-home-ekosistem" data-reveal aria-labelledby="sdbi-home-ekosistem-title">
   <div class="sdbi-home-container sdbi-home-ekosistem-inner">
     <div class="sdbi-home-ekosistem-icon" aria-hidden="true"><i class="fa fa-handshake"></i></div>
     <div class="sdbi-home-ekosistem-text">
@@ -13,7 +13,7 @@
         (stats.get('kabupaten_kota_terhubung') or 0, 'Kabupaten/Kota'),
         (eco_instansi, 'Instansi')] %}
       <div class="sdbi-home-ekosistem-stat">
-        <div class="sdbi-home-ekosistem-stat-value">{{ dot_number(value) }}</div>
+        <div class="sdbi-home-ekosistem-stat-value" data-count="{{ value|int }}">{{ dot_number(value) }}</div>
         <div class="sdbi-home-ekosistem-stat-label">{{ label }}</div>
       </div>
       {% endfor %}
