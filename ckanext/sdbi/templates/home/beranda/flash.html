@@ -1,0 +1,8 @@
+{% set flashes = h.get_flashed_messages(with_categories=true) %}
+{% if flashes %}
+<div class="sdbi-home-flash" role="status">
+  {% for category, message in flashes %}
+  <div class="sdbi-home-flash-item {{ category }}">{{ h.literal(message) }}</div>
+  {% endfor %}
+</div>
+{% endif %}

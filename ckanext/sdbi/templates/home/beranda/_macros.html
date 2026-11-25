@@ -1,0 +1,1 @@
+{% macro dot_number(value) -%}{{ '{:,}'.format(value|int).replace(',', '.') }}{%- endmacro %}

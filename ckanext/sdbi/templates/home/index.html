@@ -3,15 +3,20 @@
 {% block subtitle %}Beranda{% endblock %}
 
 {% block custom_styles %}
+  {% asset 'ckanext_usertracking/tracking2' %}
+  <p data-module="tracking2" data-module-id="{{ c.userobj.id }}" data-module-name="{{ c.userobj.name }}"></p>
   {{ super() }}
   <link rel="stylesheet" href="/base/vendor/fontawesome-free/css/all.css">
-  <link rel="stylesheet" href="/css/beranda.css?v=5">
+  <link rel="stylesheet" href="{{ h.url_for_static('/css/beranda.css') }}?v=6">
 {% endblock %}
 
 {% block page %}
+{% set stats = h.sdbi_theme_connected_statistics() or {} %}
+{% set tanggap_rooms = h.sdbi_tanggap_rooms() or [] %}
 <div class="sdbi-home">
   {% include 'home/beranda/header.html' %}
   <main class="sdbi-home-main">
+    {% include 'home/beranda/flash.html' %}
     {% include 'home/beranda/hero.html' %}
     {% include 'home/beranda/peta.html' %}
     {% include 'home/beranda/kategori.html' %}
@@ -20,5 +25,15 @@
   </main>
   {% include 'home/beranda/footer.html' %}
 </div>
-<script src="/js/beranda.js?v=5" defer></script>
 {% endblock %}
+
+{%- block scripts %}
+  {% asset 'base/main' %}
+  {% asset 'base/ckan' %}
+  {% if g.tracking_enabled %}
+    {% asset 'base/tracking' %}
+  {% endif %}
+  {{ super() }}
+  <script src="{{ h.url_for_static('js/exit-intent.js') }}"></script>
+  <script src="{{ h.url_for_static('/js/beranda.js') }}?v=6" defer></script>
+{% endblock -%}

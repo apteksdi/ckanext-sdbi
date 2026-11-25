@@ -1,3 +1,4 @@
+{% from 'home/beranda/_macros.html' import dot_number %}
 {% set latest = h.sdbi_theme_most_recent_datasets(3) or [] %}
 <section id="konten" class="sdbi-home-konten">
   <div class="sdbi-home-container sdbi-home-konten-grid">
@@ -20,8 +21,8 @@
             <div class="sdbi-home-latest-org">{{ pkg.organization.title }}</div>
             {% endif %}
             <div class="sdbi-home-latest-meta">
-              <span><i class="fa fa-eye" aria-hidden="true"></i> {{ '{:,}'.format(views|int).replace(',', '.') }} views</span>
-              <span><i class="fa fa-download" aria-hidden="true"></i> {{ '{:,}'.format(downloads|int).replace(',', '.') }} downloads</span>
+              <span><i class="fa fa-eye" aria-hidden="true"></i> {{ dot_number(views) }} views</span>
+              <span><i class="fa fa-download" aria-hidden="true"></i> {{ dot_number(downloads) }} downloads</span>
             </div>
           </div>
         </li>

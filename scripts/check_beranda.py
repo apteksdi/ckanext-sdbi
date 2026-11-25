@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Verifikasi beranda SDBI. Usage: check_beranda.py [base_url] [--expect TEXT ...]"""
 import argparse
+import re
 import sys
 import urllib.error
 import urllib.request
@@ -30,6 +31,10 @@ def main():
     for needle in ['class="sdbi-home"', '/css/beranda.css'] + a.expect:
         if needle not in body:
             fails.append('/ missing: %s' % needle)
+    if not re.search(r'<script[^>]+src="[^"]*jquery[^"]*"', body, re.I):
+        fails.append('/ missing jQuery script tag')
+    if 'tracking' not in body:
+        fails.append('/ missing tracking script')
     if 'site-header__logo-lockup' in body:
         fails.append('/ contains global header (site-header__logo-lockup)')
 
