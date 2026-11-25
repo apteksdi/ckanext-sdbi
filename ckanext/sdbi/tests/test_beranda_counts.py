@@ -79,6 +79,15 @@ class WaktuRelatifTest(unittest.TestCase):
 
 
 def extras_search(data_dict):
+    if data_dict.get('q') == 'banjir':
+        return {'count': 24, 'results': [{
+            'name': 'banjir-aceh', 'title': 'Rekapitulasi Banjir Aceh',
+            'organization': {'title': 'BPBD Provinsi Aceh'},
+            'notes': 'Data   kejadian\nbanjir ' + 'x' * 300,
+            'resources': [{'name': 'Tabel', 'format': 'csv'}, {'name': 'Peta', 'format': 'GeoJSON'},
+                          {'name': 'Tabel 2', 'format': 'CSV'}],
+            'tags': [{'name': 'sdbi'}, {'name': 'banjir', 'display_name': 'banjir'}],
+        }]}
     return {'count': 184, 'search_facets': {
         'tags': {'items': [
             {'name': 'sdbi', 'count': 100}, {'name': 'bencana', 'count': 128},
@@ -128,6 +137,56 @@ class BerandaExtrasTest(unittest.TestCase):
         def boom(d):
             raise RuntimeError('down')
         self.assertIsNone(beranda.beranda_extras(boom, extras_orgs, now=0))
+
+
+class ProviderTypeTest(unittest.TestCase):
+    def test_types(self):
+        cases = {
+            'Pusat Data Informasi dan Komunikasi Kebencanaan': 'bnpb',
+            'BPBD Kabupaten Lumajang': 'bnpb',
+            'Badan Nasional Penanggulangan Bencana': 'bnpb',
+            'Badan Geologi PVMBG': 'kl',
+            'Badan Meteorologi Klimatologi dan Geofisika': 'kl',
+            'NGO World Vision Indonesia': 'ngo',
+            'NGO Habitat for Humanity Indonesia': 'ngo',
+            'Universitas Gadjah Mada': 'lain',
+        }
+        for title, expected in cases.items():
+            self.assertEqual(beranda.provider_type(title), expected, title)
+
+
+class ExtrasTourAndShareTest(unittest.TestCase):
+    def setUp(self):
+        beranda._reset_cache()
+
+    def test_provider_share_and_type_counts(self):
+        extras = beranda.beranda_extras(extras_search, extras_orgs, now=0)
+        self.assertEqual([p['share'] for p in extras['providers']], [100, 6])
+        self.assertEqual([p['type'] for p in extras['providers']], ['bnpb', 'kl'])
+        self.assertEqual(extras['provider_types'], [
+            {'key': 'bnpb', 'label': 'BNPB & BPBD', 'count': 1},
+            {'key': 'kl', 'label': 'Kementerian/Lembaga', 'count': 1},
+        ])
+
+    def test_example_datasets_trimmed(self):
+        example = beranda.beranda_extras(extras_search, extras_orgs, now=0)['example']
+        self.assertEqual(example['query'], 'banjir')
+        self.assertEqual(example['count'], 24)
+        item = example['results'][0]
+        self.assertEqual(item['formats'], ['CSV', 'GEOJSON'])
+        self.assertTrue(item['notes'].startswith('Data kejadian banjir'))
+        self.assertTrue(item['notes'].endswith('…'))
+        self.assertEqual(item['tags'], ['banjir'])
+        self.assertEqual(len(item['resources']), 3)
+
+    def test_example_failure_keeps_rest(self):
+        def search(d):
+            if d.get('q') == 'banjir':
+                raise RuntimeError('boom')
+            return extras_search(d)
+        extras = beranda.beranda_extras(search, extras_orgs, now=0)
+        self.assertIsNone(extras['example'])
+        self.assertEqual(extras['formats'][0]['name'], 'CSV')
 
 
 if __name__ == '__main__':

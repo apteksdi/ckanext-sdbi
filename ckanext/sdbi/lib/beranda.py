@@ -81,6 +81,60 @@ def _facet_items(result, field, limit, hidden=()):
     return items[:limit]
 
 
+EXAMPLE_QUERY = 'banjir'
+
+# Provider type, matched on the lower-cased organisation title (first match wins).
+PROVIDER_TYPES = (
+    ('bnpb', ('bpbd', 'bnpb', 'penanggulangan bencana', 'pusat data informasi dan komunikasi kebencanaan')),
+    ('ngo', ('ngo', 'yayasan', 'habitat for humanity', 'world vision', 'palang merah')),
+    ('kl', ('kementerian', 'lembaga', 'badan')),
+)
+PROVIDER_TYPE_LABELS = {
+    'bnpb': 'BNPB & BPBD',
+    'kl': 'Kementerian/Lembaga',
+    'ngo': 'NGO',
+    'lain': 'Lainnya',
+}
+
+
+def provider_type(title):
+    lowered = (title or '').lower()
+    for key, words in PROVIDER_TYPES:
+        if any(w in lowered for w in words):
+            return key
+    return 'lain'
+
+
+def _initials(title):
+    return ''.join(w[0] for w in title.split() if w[:1].isalnum())[:2].upper() or '?'
+
+
+def _example_datasets(search, rows=3):
+    result = search({'q': EXAMPLE_QUERY, 'rows': rows})
+    items = []
+    for pkg in result.get('results') or []:
+        formats = []
+        for res in pkg.get('resources') or []:
+            fmt = (res.get('format') or '').upper()
+            if fmt and fmt not in formats:
+                formats.append(fmt)
+        notes = ' '.join((pkg.get('notes') or '').split())
+        items.append({
+            'name': pkg.get('name'),
+            'title': pkg.get('title') or pkg.get('name'),
+            'org': (pkg.get('organization') or {}).get('title') or '',
+            'notes': notes[:180] + ('…' if len(notes) > 180 else ''),
+            'formats': formats[:4],
+            'resources': [
+                {'name': r.get('name') or 'Tanpa nama', 'format': (r.get('format') or '').upper()}
+                for r in (pkg.get('resources') or [])[:3]
+            ],
+            'tags': [t.get('display_name') or t.get('name') for t in (pkg.get('tags') or [])
+                     if (t.get('name') or '').lower() not in HIDDEN_TAGS][:4],
+        })
+    return {'query': EXAMPLE_QUERY, 'count': result.get('count') or 0, 'results': items}
+
+
 def _compute_extras(search, orgs, tag_limit, format_limit, org_limit):
     result = search({
         'rows': 0,
@@ -93,17 +147,34 @@ def _compute_extras(search, orgs, tag_limit, format_limit, org_limit):
         if not count:
             continue
         title = org.get('title') or org.get('name') or ''
+        kind = provider_type(title)
         providers.append({
             'name': org.get('name'),
             'title': title,
             'count': count,
             'image': org.get('image_display_url') or '',
-            'initials': ''.join(w[0] for w in title.split() if w[:1].isalnum())[:2].upper() or '?',
+            'initials': _initials(title),
+            'type': kind,
+            'type_label': PROVIDER_TYPE_LABELS[kind],
         })
+    top = max([p['count'] for p in providers] or [0])
+    for p in providers:
+        p['share'] = int(round(p['count'] * 100.0 / top)) if top else 0
+    type_counts = []
+    for key in ('bnpb', 'kl', 'ngo', 'lain'):
+        n = sum(1 for p in providers if p['type'] == key)
+        if n:
+            type_counts.append({'key': key, 'label': PROVIDER_TYPE_LABELS[key], 'count': n})
+    try:
+        example = _example_datasets(search)
+    except Exception:
+        example = None  # the tour still works without live examples
     return {
         'tags': _facet_items(result, 'tags', tag_limit, HIDDEN_TAGS),
         'formats': _facet_items(result, 'res_format', format_limit),
         'providers': providers,
+        'provider_types': type_counts,
+        'example': example,
     }
 
 
